@@ -36,12 +36,17 @@ const store = usePetsStore()
 
 h1 {
   color: #333;
+  font-weight: 700;
+  margin-bottom: 20px;
 }
 
 .no-pets {
   text-align: center;
-  color: #999;
-  padding: 40px 20px;
+  color: #666;
+  padding: 30px;
   font-size: 18px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  border: 1px solid #ccc;
 }
 </style>

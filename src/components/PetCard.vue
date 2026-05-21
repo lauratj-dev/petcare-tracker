@@ -18,6 +18,8 @@ defineProps({
 </script>
 
 <style scoped>
+
+
 .pet-card-link {
   text-decoration: none;
   color: inherit;
@@ -37,11 +39,13 @@ defineProps({
   border-color: #4CAF50;
   background-color: #f0f8f0;
   transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 h3 {
   margin-top: 0;
   color: #333;
+  font-weight: 700;
 }
 
 p {
