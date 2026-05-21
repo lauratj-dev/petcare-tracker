@@ -1,170 +1,105 @@
-# 🐾 PetCare Tracker
+# PetCare Tracker
 
-> App para gestionar el cuidado de tus mascotas, construida con Vue 3.
+Una aplicación web para gestionar y dar seguimiento a tus mascotas: registrar datos básicos, visitas al veterinario, vacunas y peso.
 
-PetCare Tracker es una aplicación web pensada para llevar el control diario de la salud y rutinas de tus mascotas: perfiles, vacunas, citas veterinarias, medicación y todo lo que normalmente acaba perdido entre notas del móvil y papeles de la nevera.
+## 🚀 Demo en vivo
 
-> ⚠️ **Estado del proyecto:** En desarrollo activo. La base del proyecto está montada y se están implementando las primeras funcionalidades.
+**[Ver la app aquí](https://petcare-tracker-one.vercel.app)**
 
----
+## ✨ Características
 
-## ✨ Funcionalidades
+- ✅ Registra tus mascotas (nombre, especie, edad)
+- ✅ Guarda historial de visitas al veterinario
+- ✅ Registra vacunas y próximas dosis
+- ✅ Sigue el peso de tus mascotas
+- ✅ Busca mascotas por nombre
+- ✅ Filtra por especie
+- ✅ Datos persistentes (se guardan en tu navegador)
 
-### Estado actual
+## 🛠️ Tecnologías
 
-- ✅ Estructura base del proyecto con Vue 3 + Vite
-- ✅ Enrutado con Vue Router
-- ✅ Gestión de estado centralizada con Pinia
-- ✅ Configuración de linting (ESLint + oxlint) y formateo (Prettier)
-- ✅ Entorno de testing con Vitest
+- **Frontend:** Vue 3 + Composition API
+- **Estado:** Pinia
+- **Enrutamiento:** Vue Router
+- **Estilos:** Sass
+- **Testing:** Vitest
+- **Build:** Vite
+- **Deploy:** Vercel
+- **CI/CD:** GitHub Actions
+- **Containerización:** Docker
 
-### Roadmap
+## 📦 Instalación local
 
-- 🔜 Perfiles de mascotas (nombre, especie, raza, edad, foto, peso)
-- 🔜 Registro y seguimiento de vacunas con recordatorios
-- 🔜 Gestión de citas veterinarias
-- 🔜 Control de medicación y tratamientos
-- 🔜 Histórico de peso y métricas de salud
-- 🔜 Recordatorios de rutinas diarias (alimentación, paseos, higiene)
-- 🔜 Soporte multi-mascota
-- 🔜 Persistencia de datos (local / backend)
-
----
-
-## 🛠️ Stack tecnológico
-
-| Categoría        | Tecnología                                                  |
-| ---------------- | ----------------------------------------------------------- |
-| Framework        | [Vue 3](https://vuejs.org/) (Composition API)               |
-| Build tool       | [Vite](https://vite.dev/)                                   |
-| Estado           | [Pinia](https://pinia.vuejs.org/)                           |
-| Routing          | [Vue Router](https://router.vuejs.org/)                     |
-| Estilos          | [Sass](https://sass-lang.com/)                              |
-| Testing          | [Vitest](https://vitest.dev/) + [Vue Test Utils](https://test-utils.vuejs.org/) |
-| Linting          | [ESLint](https://eslint.org/) + [oxlint](https://oxc.rs/docs/guide/usage/linter.html) |
-| Formato          | [Prettier](https://prettier.io/)                            |
-
----
-
-## 📋 Requisitos
-
-- **Node.js** `^20.19.0` o `>=22.12.0`
-- **npm** (se incluye con Node)
-
----
-
-## 🚀 Puesta en marcha
-
-Clona el repositorio e instala dependencias:
-
+1. **Clona el repositorio:**
 ```bash
-git clone https://github.com/lauratj-dev/petcare-tracker.git
-cd petcare-tracker
-npm install
+   git clone https://github.com/lauratj-dev/petcare-tracker.git
+   cd petcare-tracker
 ```
 
-### Desarrollo
-
-Levanta el servidor de desarrollo con hot-reload:
-
+2. **Instala dependencias:**
 ```bash
-npm run dev
+   npm install
 ```
 
-Por defecto la app estará disponible en [http://localhost:5173](http://localhost:5173).
-
-### Build de producción
-
+3. **Arranca el servidor de desarrollo:**
 ```bash
-npm run build
+   npm run dev
 ```
 
-Los archivos optimizados se generan en la carpeta `dist/`.
-
-### Previsualizar el build
-
-```bash
-npm run preview
-```
-
----
+4. **Abre en tu navegador:**
+http://localhost:5173/
 
 ## 🧪 Tests
 
-Ejecuta los tests unitarios con Vitest:
+Para ejecutar los tests automáticos:
 
 ```bash
 npm run test:unit
 ```
 
----
+## 🐳 Docker
 
-## 🧹 Calidad de código
-
-Linting (ejecuta oxlint y ESLint en cadena, con auto-fix):
+Para ejecutar con Docker:
 
 ```bash
-npm run lint
+docker build -t petcare-tracker .
+docker run -p 8080:3000 petcare-tracker
 ```
 
-Formateo con Prettier:
-
-```bash
-npm run format
-```
-
----
-
-## 🧰 Configuración recomendada del IDE
-
-- [VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) — desactiva Vetur si lo tienes instalado.
-- Extensiones útiles: ESLint, Prettier, EditorConfig.
-
-Para depurar en el navegador:
-
-- **Chromium** (Chrome, Edge, Brave…): [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-- **Firefox**: [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-
----
+Luego abre: `http://localhost:8080`
 
 ## 📁 Estructura del proyecto
+src/
+├── components/          # Componentes Vue reutilizables
+│   ├── PetCard.vue     # Tarjeta de mascota
+│   └── PetForm.vue     # Formulario para añadir mascotas
+├── views/              # Páginas principales
+│   ├── HomeView.vue    # Página de inicio (lista de mascotas)
+│   └── PetDetailView.vue # Página de detalle de mascota
+├── stores/             # Estado global (Pinia)
+│   └── pets.js         # Store de mascotas
+├── router/             # Configuración de rutas
+│   └── index.js
+└── assets/
+└── styles/         # Estilos globales y variables Sass
 
-```
-petcare-tracker/
-├── public/              # Recursos estáticos servidos tal cual
-├── src/                 # Código fuente de la app
-│   ├── assets/          # Estilos e imágenes
-│   ├── components/      # Componentes Vue reutilizables
-│   ├── router/          # Configuración de Vue Router
-│   ├── stores/          # Stores de Pinia
-│   ├── views/           # Vistas asociadas a rutas
-│   ├── App.vue          # Componente raíz
-│   └── main.js          # Punto de entrada
-├── index.html           # HTML base servido por Vite
-├── vite.config.js       # Configuración de Vite
-└── vitest.config.js     # Configuración de Vitest
-```
+## 🎯 Roadmap futuro
 
----
+- [ ] Backend con Node.js + Express
+- [ ] Base de datos real (MongoDB o PostgreSQL)
+- [ ] Autenticación de usuarios
+- [ ] Gráficas de evolución de peso
+- [ ] Recordatorios de vacunas
+- [ ] Exportar datos a PDF
 
-## 🤝 Contribuir
+## 📝 Licencia
 
-Este proyecto está en fase inicial, pero cualquier sugerencia es bienvenida. Si quieres aportar:
+Este proyecto está disponible bajo la licencia MIT.
 
-1. Haz un fork del repositorio
-2. Crea una rama (`git checkout -b feature/mi-feature`)
-3. Haz commit de tus cambios (`git commit -m 'Add: mi feature'`)
-4. Sube la rama (`git push origin feature/mi-feature`)
-5. Abre un Pull Request
+## 👤 Autor
 
----
-
-## 📄 Licencia
-
-Pendiente de definir.
+Creado por Laura Torres Jiménez
 
 ---
 
-## 👤 Autora
-
-**Laura Torres Jiménez** — [@lauratj-dev](https://github.com/lauratj-dev)
+**Hecho con ❤️ durante un curso de 14 días aprendiendo Vue 3**
