@@ -12,6 +12,7 @@
       <PetCard 
         v-for="pet in store.pets" 
         :key="pet.id"
+        :id="pet.id"
         :name="pet.name"
         :species="pet.species"
         :age="pet.age"
