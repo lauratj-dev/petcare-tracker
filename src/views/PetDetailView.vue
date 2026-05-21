@@ -37,10 +37,12 @@ const pet = computed(() => {
   margin-bottom: 20px;
   color: #4CAF50;
   text-decoration: none;
-  font-weight: bold;
+  font-weight: 700;
+  transition: color 0.3s ease;
 }
 
 .back-link:hover {
+  color: #45a049;
   text-decoration: underline;
 }
 
@@ -49,21 +51,25 @@ const pet = computed(() => {
   border: 2px solid #ccc;
   padding: 20px;
   border-radius: 8px;
+  max-width: 600px;
 }
 
 h1 {
   color: #333;
   margin-top: 0;
+  margin-bottom: 15px;
+  font-weight: 700;
 }
 
 p {
   color: #666;
   font-size: 18px;
+  margin: 10px 0;
 }
 
 .not-found {
   text-align: center;
-  color: #999;
-  padding: 40px;
+  color: #666;
+  padding: 30px;
 }
 </style>

@@ -75,11 +75,14 @@ function submitForm() {
   padding: 20px;
   border-radius: 8px;
   margin-bottom: 30px;
+  border: 1px solid #ccc;
 }
 
 h2 {
   margin-top: 0;
   color: #333;
+  font-weight: 700;
+  margin-bottom: 15px;
 }
 
 .form-group {
@@ -90,7 +93,8 @@ label {
   display: block;
   margin-bottom: 5px;
   color: #333;
-  font-weight: bold;
+  font-weight: 700;
+  font-size: 16px;
 }
 
 input, select {
@@ -102,14 +106,20 @@ input, select {
   box-sizing: border-box;
 }
 
+input:focus, select:focus {
+  outline: none;
+  border-color: #4CAF50;
+}
+
 .btn-submit {
   background-color: #4CAF50;
   color: white;
-  padding: 10px 20px;
+  padding: 10px 15px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   font-size: 16px;
+  font-weight: 700;
 }
 
 .btn-submit:hover {
