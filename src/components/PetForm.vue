@@ -70,59 +70,70 @@ function submitForm() {
 </script>
 
 <style scoped>
-.pet-form {
-  background-color: #f0f0f0;
-  padding: 20px;
-  border-radius: 8px;
-  margin-bottom: 30px;
-  border: 1px solid #ccc;
+.form-container {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-h2 {
-  margin-top: 0;
-  color: #333;
-  font-weight: 700;
-  margin-bottom: 15px;
+.form-container h2 {
+  color: #2d3436;
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
 }
 
 .form-group {
-  margin-bottom: 15px;
+  margin-bottom: 1.5rem;
 }
 
-label {
+.form-group label {
   display: block;
-  margin-bottom: 5px;
-  color: #333;
-  font-weight: 700;
-  font-size: 16px;
+  color: #2d3436;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
 }
 
-input, select {
+.form-group input,
+.form-group select {
   width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 16px;
+  padding: 0.75rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
   box-sizing: border-box;
+  transition: all 0.3s ease;
 }
 
-input:focus, select:focus {
+.form-group input:focus,
+.form-group select:focus {
   outline: none;
-  border-color: #4CAF50;
+  border-color: #FF6B6B;
+  box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
 }
 
-.btn-submit {
-  background-color: #4CAF50;
+button {
+  background: linear-gradient(135deg, #FF6B6B 0%, #FF5252 100%);
   color: white;
-  padding: 10px 15px;
+  padding: 0.75rem 1.5rem;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 16px;
-  font-weight: 700;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.2);
 }
 
-.btn-submit:hover {
-  background-color: #45a049;
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(255, 107, 107, 0.3);
+}
+
+button:active {
+  transform: translateY(0);
 }
 </style>
