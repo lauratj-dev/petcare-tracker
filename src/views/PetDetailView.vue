@@ -210,133 +210,139 @@ function addNewWeight() {
 </script>
 
 <style scoped>
-.pet-detail {
-  padding: 20px;
+.detail-container {
+  padding: 2rem;
+  background: linear-gradient(135deg, #f8f9fa 0%, #fff5f7 100%);
+  min-height: 100vh;
 }
 
-.back-link {
-  display: inline-block;
-  margin-bottom: 20px;
-  color: #4CAF50;
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #FF6B6B;
   text-decoration: none;
-  font-weight: 700;
+  font-weight: 500;
+  margin-bottom: 2rem;
+  transition: all 0.3s ease;
 }
 
-.back-link:hover {
-  text-decoration: underline;
+.back-button:hover {
+  transform: translateX(-4px);
 }
 
-.pet-info {
-  background-color: #f9f9f9;
-  border: 2px solid #ccc;
-  padding: 20px;
-  border-radius: 8px;
-  max-width: 600px;
+.pet-header {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-h1 {
-  color: #333;
-  margin-top: 0;
-  margin-bottom: 15px;
-  font-weight: 700;
+.pet-header h1 {
+  margin: 0 0 0.5rem 0;
+  color: #2d3436;
+  font-size: 2rem;
 }
 
-h2 {
-  color: #333;
-  margin-top: 20px;
-  margin-bottom: 15px;
-  font-weight: 700;
-  font-size: 18px;
-}
-
-p {
+.pet-meta {
+  display: flex;
+  gap: 2rem;
   color: #666;
-  font-size: 16px;
-  margin: 10px 0;
+  font-size: 0.95rem;
 }
 
-.divider {
-  border: none;
-  border-top: 1px solid #ccc;
-  margin: 20px 0;
+.pet-meta span {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.visit-form {
-  background-color: #f0f0f0;
-  padding: 15px;
-  border-radius: 8px;
-  margin-bottom: 20px;
+.section {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.section h2 {
+  color: #2d3436;
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 3px solid #FF6B6B;
+  padding-bottom: 0.5rem;
 }
 
 .form-group {
-  margin-bottom: 15px;
+  margin-bottom: 1rem;
 }
 
-label {
+.form-group label {
   display: block;
-  margin-bottom: 5px;
-  color: #333;
-  font-weight: 700;
+  color: #2d3436;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
 }
 
-input {
+.form-group input {
   width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 16px;
+  padding: 0.75rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
   box-sizing: border-box;
+  transition: all 0.3s ease;
 }
 
-input:focus {
+.form-group input:focus {
   outline: none;
-  border-color: #4CAF50;
+  border-color: #FF6B6B;
+  box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
 }
 
-.btn-submit {
-  background-color: #4CAF50;
+button {
+  background: linear-gradient(135deg, #FF6B6B 0%, #FF5252 100%);
   color: white;
-  padding: 10px 15px;
+  padding: 0.75rem 1.5rem;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 16px;
-  font-weight: 700;
+  font-weight: 600;
+  transition: all 0.3s ease;
 }
 
-.btn-submit:hover {
-  background-color: #45a049;
-}
-
-.no-items {
-  text-align: center;
-  color: #999;
-  padding: 20px;
-  background-color: white;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(255, 107, 107, 0.3);
 }
 
 .items-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 1rem;
 }
 
 .item {
-  background-color: white;
-  border: 1px solid #ccc;
-  padding: 15px;
-  border-radius: 4px;
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 4px solid #FF6B6B;
 }
 
 .item p {
-  margin: 5px 0;
+  margin: 0.25rem 0;
+  color: #2d3436;
 }
 
-.not-found {
+.item-label {
+  font-weight: 600;
+  color: #FF6B6B;
+}
+
+.empty-message {
   text-align: center;
-  color: #666;
-  padding: 30px;
+  padding: 2rem;
+  color: #999;
+  font-style: italic;
 }
 </style>

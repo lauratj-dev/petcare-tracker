@@ -67,19 +67,22 @@ const filteredPets = computed(() => {
 
 <style scoped>
 .home {
-  padding: 20px;
+  padding: 2rem;
+  background: linear-gradient(135deg, #f8f9fa 0%, #fff5f7 100%);
+  min-height: 100vh;
 }
 
 h1 {
-  color: #333;
+  color: #2d3436;
   font-weight: 700;
-  margin-bottom: 20px;
+  margin-bottom: 2rem;
+  font-size: 2.5rem;
 }
 
 .search-filters {
   display: flex;
-  gap: 15px;
-  margin-bottom: 20px;
+  gap: 1rem;
+  margin-bottom: 2rem;
   flex-wrap: wrap;
 }
 
@@ -91,26 +94,28 @@ h1 {
 .search-input,
 .filter-select {
   width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 16px;
+  padding: 0.75rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
   box-sizing: border-box;
+  transition: all 0.3s ease;
 }
 
 .search-input:focus,
 .filter-select:focus {
   outline: none;
-  border-color: #4CAF50;
+  border-color: #FF6B6B;
+  box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
 }
 
 .no-pets {
   text-align: center;
   color: #666;
-  padding: 30px;
-  font-size: 18px;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  border: 1px solid #ccc;
+  padding: 3rem;
+  font-size: 1.1rem;
+  background-color: white;
+  border-radius: 12px;
+  border: 2px dashed #FFE66D;
 }
 </style>
