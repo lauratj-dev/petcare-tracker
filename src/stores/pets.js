@@ -13,11 +13,21 @@ export const usePetsStore = defineStore('pets', () => {
   }
 
   function addPet(pet) {
-    pets.value.push(pet)
+    pets.value.push({
+      ...pet,
+      visits: []
+    })
   }
 
   function removePet(id) {
     pets.value = pets.value.filter(p => p.id !== id)
+  }
+
+  function addVisit(petId, visit) {
+    const pet = pets.value.find(p => p.id === petId)
+    if (pet) {
+      pet.visits.push(visit)
+    }
   }
 
   // Guardar cada vez que cambia
@@ -32,5 +42,5 @@ export const usePetsStore = defineStore('pets', () => {
   // Cargar al iniciar la app
   loadPets()
 
-  return { pets, addPet, removePet }
+  return { pets, addPet, removePet, addVisit }
 })
