@@ -9,6 +9,7 @@
 
       <hr class="divider" />
 
+      <!-- VISITAS AL VETERINARIO -->
       <h2>Visitas al Veterinario</h2>
 
       <form @submit.prevent="addNewVisit" class="visit-form">
@@ -36,14 +37,108 @@
         <button type="submit" class="btn-submit">Añadir visita</button>
       </form>
 
-      <div v-if="pet.visits.length === 0" class="no-visits">
+      <div v-if="pet.visits.length === 0" class="no-items">
         <p>No hay visitas registradas</p>
       </div>
 
-      <div v-else class="visits-list">
-        <div v-for="(visit, index) in pet.visits" :key="index" class="visit-item">
+      <div v-else class="items-list">
+        <div v-for="(visit, index) in pet.visits" :key="index" class="item">
           <p><strong>Fecha:</strong> {{ visit.date }}</p>
           <p><strong>Motivo:</strong> {{ visit.reason }}</p>
+        </div>
+      </div>
+
+      <hr class="divider" />
+
+      <!-- VACUNAS -->
+      <h2>Vacunas</h2>
+
+      <form @submit.prevent="addNewVaccine" class="visit-form">
+        <div class="form-group">
+          <label for="vaccine-name">Nombre:</label>
+          <input 
+            v-model="newVaccine.name" 
+            id="vaccine-name" 
+            type="text" 
+            placeholder="Ej: Rabia"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="vaccine-date">Fecha de aplicación:</label>
+          <input 
+            v-model="newVaccine.date" 
+            id="vaccine-date" 
+            type="date" 
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="vaccine-next">Próxima dosis:</label>
+          <input 
+            v-model="newVaccine.nextDate" 
+            id="vaccine-next" 
+            type="date" 
+            required
+          />
+        </div>
+
+        <button type="submit" class="btn-submit">Añadir vacuna</button>
+      </form>
+
+      <div v-if="pet.vaccines.length === 0" class="no-items">
+        <p>No hay vacunas registradas</p>
+      </div>
+
+      <div v-else class="items-list">
+        <div v-for="(vaccine, index) in pet.vaccines" :key="index" class="item">
+          <p><strong>Vacuna:</strong> {{ vaccine.name }}</p>
+          <p><strong>Aplicada:</strong> {{ vaccine.date }}</p>
+          <p><strong>Próxima:</strong> {{ vaccine.nextDate }}</p>
+        </div>
+      </div>
+
+      <hr class="divider" />
+
+      <!-- PESO -->
+      <h2>Peso</h2>
+
+      <form @submit.prevent="addNewWeight" class="visit-form">
+        <div class="form-group">
+          <label for="weight-date">Fecha:</label>
+          <input 
+            v-model="newWeight.date" 
+            id="weight-date" 
+            type="date" 
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="weight-kg">Peso (kg):</label>
+          <input 
+            v-model.number="newWeight.kg" 
+            id="weight-kg" 
+            type="number" 
+            step="0.1"
+            placeholder="Ej: 5.5"
+            required
+          />
+        </div>
+
+        <button type="submit" class="btn-submit">Añadir peso</button>
+      </form>
+
+      <div v-if="pet.weights.length === 0" class="no-items">
+        <p>No hay pesos registrados</p>
+      </div>
+
+      <div v-else class="items-list">
+        <div v-for="(weight, index) in pet.weights" :key="index" class="item">
+          <p><strong>Fecha:</strong> {{ weight.date }}</p>
+          <p><strong>Peso:</strong> {{ weight.kg }} kg</p>
         </div>
       </div>
     </div>
@@ -67,6 +162,17 @@ const newVisit = ref({
   reason: ''
 })
 
+const newVaccine = ref({
+  name: '',
+  date: '',
+  nextDate: ''
+})
+
+const newWeight = ref({
+  date: '',
+  kg: null
+})
+
 const pet = computed(() => {
   return store.pets.find(p => p.id === parseInt(route.params.id))
 })
@@ -77,11 +183,28 @@ function addNewVisit() {
       date: newVisit.value.date,
       reason: newVisit.value.reason
     })
-    
-    newVisit.value = {
-      date: '',
-      reason: ''
-    }
+    newVisit.value = { date: '', reason: '' }
+  }
+}
+
+function addNewVaccine() {
+  if (pet.value) {
+    store.addVaccine(pet.value.id, {
+      name: newVaccine.value.name,
+      date: newVaccine.value.date,
+      nextDate: newVaccine.value.nextDate
+    })
+    newVaccine.value = { name: '', date: '', nextDate: '' }
+  }
+}
+
+function addNewWeight() {
+  if (pet.value) {
+    store.addWeight(pet.value.id, {
+      date: newWeight.value.date,
+      kg: newWeight.value.kg
+    })
+    newWeight.value = { date: '', kg: null }
   }
 }
 </script>
@@ -185,7 +308,7 @@ input:focus {
   background-color: #45a049;
 }
 
-.no-visits {
+.no-items {
   text-align: center;
   color: #999;
   padding: 20px;
@@ -194,20 +317,20 @@ input:focus {
   border-radius: 4px;
 }
 
-.visits-list {
+.items-list {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.visit-item {
+.item {
   background-color: white;
   border: 1px solid #ccc;
   padding: 15px;
   border-radius: 4px;
 }
 
-.visit-item p {
+.item p {
   margin: 5px 0;
 }
 

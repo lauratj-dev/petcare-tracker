@@ -15,7 +15,9 @@ export const usePetsStore = defineStore('pets', () => {
   function addPet(pet) {
     pets.value.push({
       ...pet,
-      visits: []
+      visits: [],
+      vaccines: [],
+      weights: []
     })
   }
 
@@ -27,6 +29,20 @@ export const usePetsStore = defineStore('pets', () => {
     const pet = pets.value.find(p => p.id === petId)
     if (pet) {
       pet.visits.push(visit)
+    }
+  }
+
+  function addVaccine(petId, vaccine) {
+    const pet = pets.value.find(p => p.id === petId)
+    if (pet) {
+      pet.vaccines.push(vaccine)
+    }
+  }
+
+  function addWeight(petId, weight) {
+    const pet = pets.value.find(p => p.id === petId)
+    if (pet) {
+      pet.weights.push(weight)
     }
   }
 
@@ -42,5 +58,5 @@ export const usePetsStore = defineStore('pets', () => {
   // Cargar al iniciar la app
   loadPets()
 
-  return { pets, addPet, removePet, addVisit }
+  return { pets, addPet, removePet, addVisit, addVaccine, addWeight }
 })
