@@ -1,8 +1,8 @@
 <template>
   <div class="pet-form">
-    <h2 class="form-title">Nueva mascota</h2>
+    <h2 class="form-title">{{ isEditing ? '✏️ Editar mascota' : 'Nueva mascota' }}</h2>
 
-    <form @submit.prevent="addPet" class="form-grid">
+    <form @submit.prevent="handleSubmit" class="form-grid">
       <div class="form-group">
         <label class="form-label">Nombre</label>
         <input
@@ -37,33 +37,66 @@
         />
       </div>
 
-      <div class="form-actions">
-        <button type="submit" class="btn-submit">
-          + Añadir mascota
-        </button>
-      </div>
+ <div class="form-actions">
+  <button
+    type="submit"
+    style="background: linear-gradient(135deg, #7B2FBE, #5B1E8C); color: #ffffff; padding: 0.75rem 1.25rem; border: none; border-radius: 14px; font-weight: 700; font-size: 0.95rem; cursor: pointer; width: 100%; white-space: nowrap;"
+  >
+    {{ isEditing ? '💾 Guardar cambios' : '+ Añadir mascota' }}
+  </button>
+  <button v-if="isEditing" type="button" class="btn-cancel" @click="emit('cancel')">
+    Cancelar
+  </button>
+</div>
     </form>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { usePetsStore } from '../stores/pets'
 
-const emit = defineEmits(['added'])
+const props = defineProps({
+  petToEdit: {
+    type: Object,
+    default: null
+  }
+})
+
+const emit = defineEmits(['added', 'updated', 'cancel'])
 const store = usePetsStore()
 
+const isEditing = ref(false)
 const form = ref({ name: '', species: '', age: null })
 
-function addPet() {
-  store.addPet({
-    id: Date.now(),
-    name: form.value.name,
-    species: form.value.species,
-    age: form.value.age,
-  })
+watch(() => props.petToEdit, (pet) => {
+  if (pet) {
+    isEditing.value = true
+    form.value = { name: pet.name, species: pet.species, age: pet.age }
+  } else {
+    isEditing.value = false
+    form.value = { name: '', species: '', age: null }
+  }
+}, { immediate: true })
+
+function handleSubmit() {
+  if (isEditing.value && props.petToEdit) {
+    store.updatePet(props.petToEdit.id, {
+      name: form.value.name,
+      species: form.value.species,
+      age: form.value.age
+    })
+    emit('updated')
+  } else {
+    store.addPet({
+      id: Date.now(),
+      name: form.value.name,
+      species: form.value.species,
+      age: form.value.age,
+    })
+    emit('added')
+  }
   form.value = { name: '', species: '', age: null }
-  emit('added')
 }
 </script>
 
@@ -86,7 +119,7 @@ function addPet() {
 
 .form-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 1rem;
   align-items: end;
 }
@@ -124,28 +157,27 @@ function addPet() {
 
 .form-actions {
   display: flex;
-  align-items: flex-end;
+  flex-direction: column;
+  gap: 0.5rem;
+  justify-content: flex-end;
 }
 
-.btn-submit {
-  width: 100%;
+.btn-cancel {
   padding: 0.75rem 1.25rem;
-  background: linear-gradient(135deg, var(--purple-main), var(--purple-deep));
-  color: white;
-  border: none;
+  border: 1.5px solid var(--border-soft);
   border-radius: var(--radius-md);
+  background: white;
+  color: var(--text-body);
   font-weight: 700;
   font-size: 0.95rem;
-  box-shadow: var(--shadow-md);
+  cursor: pointer;
   transition: all var(--transition);
+  white-space: nowrap;
+  width: 100%;
 }
 
-.btn-submit:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
-}
-
-.btn-submit:active {
-  transform: translateY(0);
+.btn-cancel:hover {
+  background: var(--purple-ghost);
+  border-color: var(--border-mid);
 }
 </style>

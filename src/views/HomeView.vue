@@ -8,15 +8,21 @@
         <p class="page-subtitle">Gestiona la salud de tus compañeros</p>
       </div>
       <div class="header-right">
-        <button class="btn-add-toggle" @click="showForm = !showForm">
+        <button class="btn-add-toggle" @click="toggleForm">
           <span>{{ showForm ? '✕ Cancelar' : '+ Añadir mascota' }}</span>
         </button>
       </div>
     </div>
 
-    <!-- FORMULARIO COLAPSABLE -->
+    <!-- FORMULARIO (crear o editar) -->
     <Transition name="slide-down">
-      <PetForm v-if="showForm" @added="showForm = false" />
+      <PetForm
+        v-if="showForm"
+        :petToEdit="petToEdit"
+        @added="onAdded"
+        @updated="onUpdated"
+        @cancel="onCancel"
+      />
     </Transition>
 
     <!-- BUSCADOR Y FILTROS -->
@@ -71,6 +77,7 @@
         :name="pet.name"
         :species="pet.species"
         :age="pet.age"
+        @edit="onEditRequest"
       />
     </div>
 
@@ -87,6 +94,7 @@ const store = usePetsStore()
 const searchText = ref('')
 const selectedSpecies = ref('')
 const showForm = ref(false)
+const petToEdit = ref(null)
 
 const filteredPets = computed(() =>
   store.pets.filter(pet => {
@@ -98,6 +106,36 @@ const filteredPets = computed(() =>
 
 const totalVisits = computed(() => store.pets.reduce((acc, p) => acc + (p.visits?.length || 0), 0))
 const totalVaccines = computed(() => store.pets.reduce((acc, p) => acc + (p.vaccines?.length || 0), 0))
+
+function toggleForm() {
+  if (showForm.value && petToEdit.value) {
+    // Si estaba editando, cancela
+    petToEdit.value = null
+  }
+  showForm.value = !showForm.value
+}
+
+function onEditRequest(id) {
+  petToEdit.value = store.pets.find(p => p.id === id) || null
+  showForm.value = true
+  // Scroll suave al formulario
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+function onAdded() {
+  showForm.value = false
+  petToEdit.value = null
+}
+
+function onUpdated() {
+  showForm.value = false
+  petToEdit.value = null
+}
+
+function onCancel() {
+  showForm.value = false
+  petToEdit.value = null
+}
 </script>
 
 <style scoped>
@@ -107,7 +145,6 @@ const totalVaccines = computed(() => store.pets.reduce((acc, p) => acc + (p.vacc
   margin: 0 auto;
 }
 
-/* HEADER */
 .page-header {
   display: flex;
   align-items: flex-end;
@@ -149,7 +186,6 @@ const totalVaccines = computed(() => store.pets.reduce((acc, p) => acc + (p.vacc
   box-shadow: var(--shadow-lg);
 }
 
-/* SEARCH */
 .search-bar {
   display: flex;
   gap: 1rem;
@@ -208,7 +244,6 @@ const totalVaccines = computed(() => store.pets.reduce((acc, p) => acc + (p.vacc
   border-color: var(--purple-mid);
 }
 
-/* STATS */
 .stats-row {
   display: flex;
   gap: 0.75rem;
@@ -238,7 +273,6 @@ const totalVaccines = computed(() => store.pets.reduce((acc, p) => acc + (p.vacc
   font-weight: 600;
 }
 
-/* EMPTY */
 .empty-state {
   text-align: center;
   padding: 4rem 2rem;
@@ -265,14 +299,12 @@ const totalVaccines = computed(() => store.pets.reduce((acc, p) => acc + (p.vacc
   font-size: 0.95rem;
 }
 
-/* GRID */
 .pets-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 1.25rem;
 }
 
-/* TRANSITION */
 .slide-down-enter-active,
 .slide-down-leave-active {
   transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
