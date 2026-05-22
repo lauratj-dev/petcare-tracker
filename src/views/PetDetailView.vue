@@ -14,6 +14,9 @@
               <span class="meta-tag">{{ pet.age }} años</span>
             </div>
           </div>
+          <button class="btn-delete-hero" @click="showConfirm = true" title="Eliminar mascota">
+            🗑️ Eliminar
+          </button>
         </div>
       </div>
 
@@ -131,15 +134,31 @@
       <router-link to="/" class="back-btn">← Volver al inicio</router-link>
     </div>
 
+    <!-- MODAL BORRAR -->
+    <Teleport to="body">
+      <div v-if="showConfirm" class="modal-overlay" @click.self="showConfirm = false">
+        <div class="modal">
+          <div class="modal-icon">🐾</div>
+          <h3 class="modal-title">¿Eliminar a {{ pet?.name }}?</h3>
+          <p class="modal-desc">Esta acción no se puede deshacer. Se borrarán todas las visitas, vacunas y pesos registrados.</p>
+          <div class="modal-actions">
+            <button class="btn-cancel" @click="showConfirm = false">Cancelar</button>
+            <button class="btn-confirm" @click="confirmDelete">Sí, eliminar</button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
   </div>
 </template>
 
 <script setup>
 import { computed, ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { usePetsStore } from '../stores/pets'
 
 const route = useRoute()
+const router = useRouter()
 const store = usePetsStore()
 
 const pet = computed(() => store.pets.find(p => p.id === parseInt(route.params.id)))
@@ -155,10 +174,17 @@ const tabs = [
   { id: 'weight',   label: 'Peso',     icon: '⚖️' },
 ]
 const activeTab = ref('visits')
+const showConfirm = ref(false)
 
 const newVisit   = ref({ date: '', reason: '' })
 const newVaccine = ref({ name: '', date: '', nextDate: '' })
 const newWeight  = ref({ date: '', kg: null })
+
+function confirmDelete() {
+  store.removePet(pet.value.id)
+  showConfirm.value = false
+  router.push('/')
+}
 
 function addNewVisit() {
   if (pet.value) {
@@ -220,6 +246,7 @@ function addNewWeight() {
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-lg);
   margin-bottom: 2rem;
+  flex-wrap: wrap;
 }
 
 .hero-avatar {
@@ -234,6 +261,10 @@ function addNewWeight() {
   font-size: 2.5rem;
   flex-shrink: 0;
   border: 2px solid rgba(255,255,255,0.3);
+}
+
+.hero-info {
+  flex: 1;
 }
 
 .hero-name {
@@ -259,6 +290,27 @@ function addNewWeight() {
   font-weight: 700;
   backdrop-filter: blur(4px);
   border: 1px solid rgba(255,255,255,0.25);
+}
+
+/* BOTÓN ELIMINAR EN HERO */
+.btn-delete-hero {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 0.6rem 1.1rem;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all var(--transition);
+  backdrop-filter: blur(4px);
+  margin-left: auto;
+}
+
+.btn-delete-hero:hover {
+  background: rgba(239, 68, 68, 0.7);
+  border-color: rgba(239, 68, 68, 0.8);
+  transform: translateY(-2px);
 }
 
 /* TABS */
@@ -441,7 +493,6 @@ function addNewWeight() {
   color: var(--purple-deep);
 }
 
-/* EMPTY */
 .empty-section {
   text-align: center;
   padding: 2.5rem;
@@ -450,9 +501,95 @@ function addNewWeight() {
   font-style: italic;
 }
 
-/* NOT FOUND */
 .not-found {
   text-align: center;
   padding: 4rem 2rem;
+}
+
+/* MODAL */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(30, 10, 60, 0.45);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modal {
+  background: white;
+  border-radius: var(--radius-xl);
+  padding: 2.5rem 2rem;
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+  animation: modal-in 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes modal-in {
+  from { opacity: 0; transform: scale(0.9) translateY(10px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.modal-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+
+.modal-title {
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: var(--text-dark);
+  margin-bottom: 0.75rem;
+}
+
+.modal-desc {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.btn-cancel {
+  flex: 1;
+  padding: 0.75rem;
+  border: 1.5px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  background: white;
+  color: var(--text-body);
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.btn-cancel:hover {
+  background: var(--purple-ghost);
+  border-color: var(--border-mid);
+}
+
+.btn-confirm {
+  flex: 1;
+  padding: 0.75rem;
+  border: none;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all var(--transition);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
+}
+
+.btn-confirm:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(220, 38, 38, 0.35);
 }
 </style>
