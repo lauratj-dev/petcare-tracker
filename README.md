@@ -84,27 +84,28 @@ src/
 └── styles/         # Estilos globales y variables Sass
 
 ## 🎯 Roadmap - Próximas mejoras
-
+ 
 Este proyecto está en **desarrollo activo**. Aquí están las próximas fases planificadas:
-
-### 🎨 Fase 1: Diseño y UX (En progreso)
+ 
+### 🎨 Fase 1: Diseño y UX ✅ Completada
+ 
 Mejorar la interfaz y experiencia del usuario.
-
-- [ ] Tema visual mejorado con paleta de colores cálida
-- [ ] Animaciones suaves al interactuar (Vue Transitions)
-- [ ] Avatares/iconos personalizados según especie
+ 
+- [x] Tema visual mejorado con paleta de colores morada/lila
+- [x] Animaciones suaves al interactuar (Vue Transitions)
+- [x] Avatares/iconos personalizados según especie
+- [x] Responsive 100% (móvil, tablet, desktop)
 - [ ] Modo oscuro/claro con toggle
 - [ ] Toast notifications (mensajes de éxito/error)
-- [ ] Responsive 100% (móvil, tablet, desktop)
 - [ ] Logo y favicon personalizado
-
-**Tecnologías:** CSS Animations, Vue Transitions, Tailwind CSS
-
+**Tecnologías:** CSS Animations, Vue Transitions, CSS Custom Properties
+ 
 ---
-
-### ⚡ Fase 2: Funcionalidades nuevas
+ 
+### ⚡ Fase 2: Funcionalidades nuevas ← En progreso
+ 
 Expandir las capacidades de la app.
-
+ 
 - [ ] Botón de borrar mascota (con confirmación)
 - [ ] Editar datos de la mascota
 - [ ] Upload de foto para cada mascota
@@ -112,49 +113,48 @@ Expandir las capacidades de la app.
 - [ ] Recordatorios de vacunas (alertas)
 - [ ] Exportar informe a PDF
 - [ ] Importar/Exportar datos (JSON backup)
-
 **Tecnologías:** Chart.js, jsPDF, File API
-
+ 
 ---
-
-### 🔐 Fase 3: Backend y Autenticación ⭐ PRÓXIMO GRAN PASO
+ 
+### 🔐 Fase 3: Backend y Autenticación ⭐ Próximo gran paso
+ 
 Transformar en una app full-stack real.
-
+ 
 - [ ] Backend con Node.js + Express
 - [ ] Base de datos MongoDB
 - [ ] API REST completa (CRUD)
 - [ ] Autenticación de usuarios (JWT)
 - [ ] Cada usuario ve solo sus mascotas
 - [ ] Deploy del backend (Render/Railway)
-
 **Tecnologías:** Node.js, Express, MongoDB, JWT, REST API
-
+ 
 ---
-
+ 
 ### 🧪 Fase 4: Calidad profesional
+ 
 Estándares de código y testing enterprise.
-
+ 
 - [ ] Aumentar cobertura de tests (80%+)
 - [ ] Tests E2E con Cypress
 - [ ] Migración a TypeScript
 - [ ] Pre-commit hooks (husky)
 - [ ] Documentación de API (Swagger)
 - [ ] Logs estructurados en backend
-
 **Tecnologías:** Cypress, TypeScript, Swagger, Winston
-
+ 
 ---
-
+ 
 ### 🚀 Fase 5: DevOps y producción
+ 
 Despliegue profesional y observabilidad.
-
+ 
 - [ ] GitHub Actions completo (CI/CD avanzado)
 - [ ] Docker Compose (full stack containerizado)
 - [ ] Monitoring con Sentry
 - [ ] Analytics con Vercel Analytics
 - [ ] PWA (instalable en móvil)
 - [ ] Custom domain
-
 **Tecnologías:** Docker Compose, Sentry, PWA, GitHub Actions
 
 ---
