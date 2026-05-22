@@ -12,10 +12,13 @@
       <div class="pet-arrow">→</div>
     </router-link>
 
-    <!-- BOTÓN BORRAR -->
-    <button class="btn-delete" @click.prevent="showConfirm = true" title="Eliminar mascota">✕</button>
+    <!-- ACCIONES HOVER -->
+    <div class="card-actions">
+      <button class="btn-action btn-edit" @click.prevent="emit('edit', id)" title="Editar mascota">✏️</button>
+      <button class="btn-action btn-delete" @click.prevent="showConfirm = true" title="Eliminar mascota">✕</button>
+    </div>
 
-    <!-- MODAL DE CONFIRMACIÓN -->
+    <!-- MODAL BORRAR -->
     <Teleport to="body">
       <div v-if="showConfirm" class="modal-overlay" @click.self="showConfirm = false">
         <div class="modal">
@@ -42,6 +45,8 @@ const props = defineProps({
   species: String,
   age: Number,
 })
+
+const emit = defineEmits(['edit'])
 
 const store = usePetsStore()
 const showConfirm = ref(false)
@@ -165,30 +170,39 @@ function confirmDelete() {
   box-shadow: var(--shadow-md);
 }
 
-/* BOTÓN BORRAR */
-.btn-delete {
+/* ACCIONES */
+.card-actions {
   position: absolute;
   top: 0.6rem;
   right: 0.6rem;
-  width: 26px;
-  height: 26px;
+  display: flex;
+  gap: 0.3rem;
+  opacity: 0;
+  transition: opacity var(--transition);
+  z-index: 2;
+}
+
+.pet-card-wrapper:hover .card-actions {
+  opacity: 1;
+}
+
+.btn-action {
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   border: none;
   background: transparent;
-  color: var(--text-muted);
   font-size: 0.75rem;
-  font-weight: 700;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all var(--transition);
-  z-index: 2;
-  opacity: 0;
 }
 
-.pet-card-wrapper:hover .btn-delete {
-  opacity: 1;
+.btn-edit:hover {
+  background: var(--purple-soft);
+  transform: scale(1.15);
 }
 
 .btn-delete:hover {
@@ -226,10 +240,7 @@ function confirmDelete() {
   to   { opacity: 1; transform: scale(1) translateY(0); }
 }
 
-.modal-icon {
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
-}
+.modal-icon { font-size: 2.5rem; margin-bottom: 1rem; }
 
 .modal-title {
   font-size: 1.3rem;

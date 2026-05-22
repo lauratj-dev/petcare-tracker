@@ -4,7 +4,6 @@ import { ref, watch } from 'vue'
 export const usePetsStore = defineStore('pets', () => {
   const pets = ref([])
 
-  // Cargar datos al iniciar
   function loadPets() {
     const saved = localStorage.getItem('pets')
     if (saved) {
@@ -25,28 +24,31 @@ export const usePetsStore = defineStore('pets', () => {
     pets.value = pets.value.filter(p => p.id !== id)
   }
 
+  function updatePet(id, updatedData) {
+    const index = pets.value.findIndex(p => p.id === id)
+    if (index !== -1) {
+      pets.value[index] = {
+        ...pets.value[index],
+        ...updatedData
+      }
+    }
+  }
+
   function addVisit(petId, visit) {
     const pet = pets.value.find(p => p.id === petId)
-    if (pet) {
-      pet.visits.push(visit)
-    }
+    if (pet) pet.visits.push(visit)
   }
 
   function addVaccine(petId, vaccine) {
     const pet = pets.value.find(p => p.id === petId)
-    if (pet) {
-      pet.vaccines.push(vaccine)
-    }
+    if (pet) pet.vaccines.push(vaccine)
   }
 
   function addWeight(petId, weight) {
     const pet = pets.value.find(p => p.id === petId)
-    if (pet) {
-      pet.weights.push(weight)
-    }
+    if (pet) pet.weights.push(weight)
   }
 
-  // Guardar cada vez que cambia
   watch(
     () => pets.value,
     (newPets) => {
@@ -55,8 +57,7 @@ export const usePetsStore = defineStore('pets', () => {
     { deep: true }
   )
 
-  // Cargar al iniciar la app
   loadPets()
 
-  return { pets, addPet, removePet, addVisit, addVaccine, addWeight }
+  return { pets, addPet, removePet, updatePet, addVisit, addVaccine, addWeight }
 })
