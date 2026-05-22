@@ -1,85 +1,190 @@
-<script setup>
-import { RouterLink, RouterView } from 'vue-router'
-
-</script>
-
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
+  <div class="app-layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon">🐾</div>
+        <div class="brand-text">
+          <span class="brand-name">PetCare</span>
+          <span class="brand-sub">Tracker</span>
+        </div>
+      </div>
 
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
+      <nav class="sidebar-nav">
+        <RouterLink to="/" class="nav-item" :class="{ active: route.path === '/' }">
+          <span class="nav-icon">🏠</span>
+          <span>Inicio</span>
+        </RouterLink>
+        <RouterLink to="/about" class="nav-item" :class="{ active: route.path === '/about' }">
+          <span class="nav-icon">ℹ️</span>
+          <span>Acerca de</span>
+        </RouterLink>
       </nav>
-    </div>
-  </header>
 
-  <RouterView />
+      <div class="sidebar-footer">
+        <p class="sidebar-tagline">Porque su bienestar<br>merece lo mejor 🤍</p>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+      <RouterView />
+    </main>
+  </div>
 </template>
 
+<script setup>
+import { RouterLink, RouterView } from 'vue-router'
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
+</script>
+
 <style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+  background: var(--bg-page);
 }
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
+/* ── SIDEBAR ── */
+.sidebar {
+  width: var(--sidebar-w);
+  min-height: 100vh;
+  background: linear-gradient(180deg, #ffffff 0%, var(--bg-sidebar) 100%);
+  border-right: 1.5px solid var(--border-soft);
+  display: flex;
+  flex-direction: column;
+  padding: 2rem 1.25rem;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  box-shadow: 2px 0 16px rgba(91, 30, 140, 0.06);
+  flex-shrink: 0;
 }
 
-nav {
-  width: 100%;
-  font-size: 12px;
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1.5px solid var(--border-soft);
+}
+
+.brand-icon {
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, var(--purple-main), var(--purple-deep));
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  box-shadow: var(--shadow-md);
+  flex-shrink: 0;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.brand-name {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--purple-deep);
+  letter-spacing: -0.3px;
+}
+
+.brand-sub {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--purple-mid);
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  flex: 1;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text-body);
+  transition: all var(--transition);
+}
+
+.nav-item:hover {
+  background: var(--purple-soft);
+  color: var(--purple-deep);
+  transform: translateX(3px);
+}
+
+.nav-item.active {
+  background: linear-gradient(135deg, var(--purple-main), var(--purple-deep));
+  color: white;
+  box-shadow: var(--shadow-md);
+}
+
+.nav-item.active .nav-icon {
+  filter: brightness(2);
+}
+
+.nav-icon {
+  font-size: 1.1rem;
+  width: 22px;
   text-align: center;
-  margin-top: 2rem;
 }
 
-nav a.router-link-exact-active {
-  color: var(--color-text);
+.sidebar-footer {
+  padding-top: 1.5rem;
+  border-top: 1.5px solid var(--border-soft);
 }
 
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
+.sidebar-tagline {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-style: italic;
+  line-height: 1.5;
+  text-align: center;
 }
 
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
+/* ── MAIN ── */
+.main-content {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
 }
 
-nav a:first-of-type {
-  border: 0;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 70px;
+    padding: 1.5rem 0.75rem;
   }
-
-  .logo {
-    margin: 0 2rem 0 0;
+  .brand-text,
+  .sidebar-tagline,
+  .nav-item span:last-child {
+    display: none;
   }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
+  .nav-item {
+    justify-content: center;
+    padding: 0.75rem;
   }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
+  .sidebar-brand {
+    justify-content: center;
+  }
+  .brand-icon {
+    margin: 0;
   }
 }
 </style>

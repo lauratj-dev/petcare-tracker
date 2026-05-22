@@ -1,139 +1,151 @@
 <template>
-  <form @submit.prevent="submitForm" class="pet-form">
-    <h2>Añadir nueva mascota</h2>
-    
-    <div class="form-group">
-      <label for="name">Nombre:</label>
-      <input 
-        v-model="form.name" 
-        id="name" 
-        type="text" 
-        placeholder="Ej: Luna"
-        required
-      />
-    </div>
+  <div class="pet-form">
+    <h2 class="form-title">Nueva mascota</h2>
 
-    <div class="form-group">
-      <label for="species">Especie:</label>
-      <select v-model="form.species" id="species" required>
-        <option value="">Selecciona una especie</option>
-        <option value="Perro">Perro</option>
-        <option value="Gato">Gato</option>
-        <option value="Conejo">Conejo</option>
-        <option value="Otro">Otro</option>
-      </select>
-    </div>
+    <form @submit.prevent="addPet" class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Nombre</label>
+        <input
+          v-model="form.name"
+          type="text"
+          placeholder="Ej: Luna"
+          class="form-input"
+          required
+        />
+      </div>
 
-    <div class="form-group">
-      <label for="age">Edad (años):</label>
-      <input 
-        v-model.number="form.age" 
-        id="age" 
-        type="number" 
-        placeholder="Ej: 3"
-        required
-      />
-    </div>
+      <div class="form-group">
+        <label class="form-label">Especie</label>
+        <select v-model="form.species" class="form-input" required>
+          <option value="">Selecciona una especie</option>
+          <option value="Perro">🐕 Perro</option>
+          <option value="Gato">🐈 Gato</option>
+          <option value="Conejo">🐰 Conejo</option>
+          <option value="Otro">✨ Otro</option>
+        </select>
+      </div>
 
-    <button type="submit" class="btn-submit">Añadir mascota</button>
-  </form>
+      <div class="form-group">
+        <label class="form-label">Edad (años)</label>
+        <input
+          v-model.number="form.age"
+          type="number"
+          placeholder="Ej: 3"
+          class="form-input"
+          min="0"
+          required
+        />
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn-submit">
+          + Añadir mascota
+        </button>
+      </div>
+    </form>
+  </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import { usePetsStore } from '../stores/pets'
 
+const emit = defineEmits(['added'])
 const store = usePetsStore()
 
-const form = ref({
-  name: '',
-  species: '',
-  age: null
-})
+const form = ref({ name: '', species: '', age: null })
 
-function submitForm() {
-  const newPet = {
+function addPet() {
+  store.addPet({
     id: Date.now(),
     name: form.value.name,
     species: form.value.species,
-    age: form.value.age
-  }
-  
-  store.addPet(newPet)
-  
-  form.value = {
-    name: '',
-    species: '',
-    age: null
-  }
+    age: form.value.age,
+  })
+  form.value = { name: '', species: '', age: null }
+  emit('added')
 }
 </script>
 
 <style scoped>
-.form-container {
+.pet-form {
   background: white;
-  padding: 2rem;
-  border-radius: 12px;
-  margin-bottom: 2rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1.5px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  padding: 1.75rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow-md);
 }
 
-.form-container h2 {
-  color: #2d3436;
-  font-size: 1.5rem;
-  margin-bottom: 1.5rem;
-  font-weight: 600;
+.form-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-dark);
+  margin-bottom: 1.25rem;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  align-items: end;
 }
 
 .form-group {
-  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
 }
 
-.form-group label {
-  display: block;
-  color: #2d3436;
-  font-weight: 500;
-  margin-bottom: 0.5rem;
+.form-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-body);
+  letter-spacing: 0.3px;
+}
+
+.form-input {
+  padding: 0.75rem 1rem;
+  border: 1.5px solid var(--border-soft);
+  border-radius: var(--radius-md);
   font-size: 0.95rem;
-}
-
-.form-group input,
-.form-group select {
+  color: var(--text-dark);
+  background: var(--bg-page);
+  transition: all var(--transition);
   width: 100%;
-  padding: 0.75rem;
-  border: 2px solid #e0e0e0;
-  border-radius: 8px;
-  font-size: 1rem;
-  box-sizing: border-box;
-  transition: all 0.3s ease;
 }
 
-.form-group input:focus,
-.form-group select:focus {
+.form-input:focus {
   outline: none;
-  border-color: #FF6B6B;
-  box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+  border-color: var(--purple-mid);
+  background: white;
+  box-shadow: 0 0 0 3px rgba(123, 47, 190, 0.1);
 }
 
-button {
-  background: linear-gradient(135deg, #FF6B6B 0%, #FF5252 100%);
+.form-actions {
+  display: flex;
+  align-items: flex-end;
+}
+
+.btn-submit {
+  width: 100%;
+  padding: 0.75rem 1.25rem;
+  background: linear-gradient(135deg, var(--purple-main), var(--purple-deep));
   color: white;
-  padding: 0.75rem 1.5rem;
   border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.2);
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: 0.95rem;
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition);
 }
 
-button:hover {
+.btn-submit:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(255, 107, 107, 0.3);
+  box-shadow: var(--shadow-lg);
 }
 
-button:active {
+.btn-submit:active {
   transform: translateY(0);
 }
 </style>
