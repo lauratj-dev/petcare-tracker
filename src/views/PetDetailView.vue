@@ -33,6 +33,7 @@
           @click="activeTab = tab.id"
         >
           {{ tab.icon }} {{ tab.label }}
+          <span v-if="tab.id === 'vaccines' && overdueVaccines.length > 0" class="tab-badge">{{ overdueVaccines.length }}</span>
         </button>
       </div>
 
@@ -67,6 +68,20 @@
 
       <!-- ── VACUNAS ── -->
       <div v-if="activeTab === 'vaccines'" class="section">
+        <!-- ALERTAS DE VACUNAS VENCIDAS -->
+        <div v-if="overdueVaccines.length > 0" class="vaccine-alert">
+          <div class="alert-icon">⚠️</div>
+          <div class="alert-content">
+            <h4 class="alert-title">Vacunas próximas a vencer</h4>
+            <p class="alert-desc">{{ overdueVaccines.length }} {{ overdueVaccines.length === 1 ? 'vacuna' : 'vacunas' }} necesita{{ overdueVaccines.length === 1 ? '' : 'n' }} atención</p>
+            <div class="overdue-list">
+              <span v-for="(v, i) in overdueVaccines" :key="i" class="overdue-badge">
+                {{ v.name }} — {{ getDaysUntil(v.nextDate) }}
+              </span>
+            </div>
+          </div>
+        </div>
+
         <form @submit.prevent="addNewVaccine" class="record-form">
           <div class="form-row">
             <div class="form-group">
@@ -91,12 +106,14 @@
           <p>💉 No hay vacunas registradas aún</p>
         </div>
         <div v-else class="records-list">
-          <div v-for="(v, i) in [...pet.vaccines].reverse()" :key="i" class="record-item">
+          <div v-for="(v, i) in [...pet.vaccines].reverse()" :key="i" class="record-item" :class="getVaccineStatus(v)">
             <div class="record-badge">{{ v.name }}</div>
             <div class="record-dates">
               <span>Aplicada: {{ v.date }}</span>
               <span class="next-dose">Próxima: {{ v.nextDate }}</span>
             </div>
+            <div v-if="isVaccineOverdue(v)" class="vaccine-status-badge">⚠️ Vencida</div>
+            <div v-else-if="isVaccineExpiringSoon(v)" class="vaccine-status-badge warning">⏰ Próxima</div>
           </div>
         </div>
       </div>
@@ -192,6 +209,40 @@ const showConfirm = ref(false)
 const newVisit   = ref({ date: '', reason: '' })
 const newVaccine = ref({ name: '', date: '', nextDate: '' })
 const newWeight  = ref({ date: '', kg: null })
+
+// RECORDATORIOS VACUNAS
+const overdueVaccines = computed(() => {
+  if (!pet.value?.vaccines) return []
+  const today = new Date().toISOString().split('T')[0]
+  return pet.value.vaccines.filter(v => v.nextDate <= today)
+})
+
+function isVaccineOverdue(vaccine) {
+  const today = new Date().toISOString().split('T')[0]
+  return vaccine.nextDate < today
+}
+
+function isVaccineExpiringSoon(vaccine) {
+  const today = new Date(new Date().toISOString().split('T')[0])
+  const nextDate = new Date(vaccine.nextDate)
+  const daysUntil = Math.ceil((nextDate - today) / (1000 * 60 * 60 * 24))
+  return daysUntil >= 0 && daysUntil <= 7
+}
+
+function getDaysUntil(nextDate) {
+  const today = new Date(new Date().toISOString().split('T')[0])
+  const date = new Date(nextDate)
+  const daysUntil = Math.ceil((date - today) / (1000 * 60 * 60 * 24))
+  if (daysUntil < 0) return `Vencida hace ${Math.abs(daysUntil)} días`
+  if (daysUntil === 0) return 'Hoy'
+  return `En ${daysUntil} días`
+}
+
+function getVaccineStatus(vaccine) {
+  if (isVaccineOverdue(vaccine)) return 'overdue'
+  if (isVaccineExpiringSoon(vaccine)) return 'expiring'
+  return ''
+}
 
 onMounted(() => {
   if (pet.value?.weights?.length >= 2) {
@@ -420,6 +471,11 @@ function addNewWeight() {
   color: var(--text-muted);
   background: transparent;
   transition: all var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  position: relative;
 }
 
 .tab-btn:hover {
@@ -433,6 +489,23 @@ function addNewWeight() {
   box-shadow: var(--shadow-sm);
 }
 
+.tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background: #ef4444;
+  color: white;
+  border-radius: 50%;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.tab-btn.active .tab-badge {
+  background: rgba(255, 255, 255, 0.3);
+}
+
 /* SECTION */
 .section {
   background: white;
@@ -440,6 +513,55 @@ function addNewWeight() {
   border-radius: var(--radius-lg);
   padding: 1.75rem;
   box-shadow: var(--shadow-sm);
+}
+
+/* ALERTA VACUNAS */
+.vaccine-alert {
+  display: flex;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(239, 68, 68, 0.04));
+  border: 1.5px solid #fecaca;
+  border-radius: var(--radius-lg);
+  margin-bottom: 1.5rem;
+}
+
+.alert-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.alert-content {
+  flex: 1;
+}
+
+.alert-title {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #dc2626;
+  margin-bottom: 0.25rem;
+}
+
+.alert-desc {
+  font-size: 0.85rem;
+  color: #b91c1c;
+  margin-bottom: 0.75rem;
+}
+
+.overdue-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.overdue-badge {
+  display: inline-block;
+  background: #fee2e2;
+  color: #991b1b;
+  padding: 0.4rem 0.8rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-weight: 600;
 }
 
 /* FORM */
@@ -528,12 +650,22 @@ function addNewWeight() {
   border-radius: var(--radius-md);
   border-left: 3px solid var(--purple-mid);
   transition: all var(--transition);
+  position: relative;
+}
+
+.record-item.overdue {
+  background: #fee2e2;
+  border-left-color: #dc2626;
+}
+
+.record-item.expiring {
+  background: #fef3c7;
+  border-left-color: #f59e0b;
 }
 
 .record-item:hover {
   transform: translateX(3px);
   border-left-color: var(--purple-deep);
-  background: var(--purple-soft);
 }
 
 .record-date {
@@ -567,6 +699,7 @@ function addNewWeight() {
   color: var(--text-body);
   font-weight: 600;
   flex-wrap: wrap;
+  flex: 1;
 }
 
 .next-dose {
@@ -577,6 +710,21 @@ function addNewWeight() {
   font-size: 1.2rem;
   font-weight: 800;
   color: var(--purple-deep);
+}
+
+.vaccine-status-badge {
+  background: #dc2626;
+  color: white;
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.vaccine-status-badge.warning {
+  background: #f59e0b;
+  color: white;
 }
 
 /* GRÁFICA */
