@@ -6,7 +6,10 @@
       <div class="detail-header">
         <router-link to="/" class="back-btn">← Volver</router-link>
         <div class="pet-hero">
-          <div class="hero-avatar">{{ speciesEmoji }}</div>
+          <div class="hero-avatar">
+            <img v-if="pet.photo" :src="pet.photo" :alt="pet.name" class="hero-photo" />
+            <span v-else>{{ speciesEmoji }}</span>
+          </div>
           <div class="hero-info">
             <h1 class="hero-name">{{ pet.name }}</h1>
             <div class="hero-meta">
@@ -261,6 +264,14 @@ function addNewWeight() {
   font-size: 2.5rem;
   flex-shrink: 0;
   border: 2px solid rgba(255,255,255,0.3);
+  overflow: hidden;
+}
+
+.hero-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--radius-lg);
 }
 
 .hero-info {
