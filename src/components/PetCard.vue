@@ -2,7 +2,8 @@
   <div class="pet-card-wrapper">
     <router-link :to="`/pet/${id}`" class="pet-card">
       <div class="pet-avatar">
-        <span class="pet-emoji">{{ speciesEmoji }}</span>
+        <img v-if="props.photo" :src="props.photo" :alt="name" class="pet-photo" />
+        <span v-else class="pet-emoji">{{ speciesEmoji }}</span>
       </div>
       <div class="pet-info">
         <h3 class="pet-name">{{ name }}</h3>
@@ -44,10 +45,10 @@ const props = defineProps({
   name: String,
   species: String,
   age: Number,
+  photo: String
 })
 
 const emit = defineEmits(['edit'])
-
 const store = usePetsStore()
 const showConfirm = ref(false)
 
@@ -116,6 +117,17 @@ function confirmDelete() {
   transition: transform var(--transition);
   position: relative;
   z-index: 1;
+  overflow: hidden;
+}
+
+.pet-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pet-emoji {
+  display: block;
 }
 
 .pet-card:hover .pet-avatar {
@@ -170,7 +182,6 @@ function confirmDelete() {
   box-shadow: var(--shadow-md);
 }
 
-/* ACCIONES */
 .card-actions {
   position: absolute;
   top: 0.6rem;
@@ -207,11 +218,9 @@ function confirmDelete() {
 
 .btn-delete:hover {
   background: #fee2e2;
-  color: #dc2626;
   transform: scale(1.15);
 }
 
-/* MODAL */
 .modal-overlay {
   position: fixed;
   inset: 0;

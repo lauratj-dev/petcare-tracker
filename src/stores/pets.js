@@ -14,6 +14,7 @@ export const usePetsStore = defineStore('pets', () => {
   function addPet(pet) {
     pets.value.push({
       ...pet,
+      photo: pet.photo || null,
       visits: [],
       vaccines: [],
       weights: []
