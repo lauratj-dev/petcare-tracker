@@ -128,6 +128,12 @@
             <div class="record-weight">{{ w.kg }} kg</div>
           </div>
         </div>
+
+        <!-- GRÁFICA PESO -->
+        <div v-if="pet.weights.length >= 2" class="weight-chart-section">
+          <h3 class="chart-title">📈 Evolución del peso</h3>
+          <canvas ref="weightChartCanvas"></canvas>
+        </div>
       </div>
 
     </div>
@@ -156,9 +162,10 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { usePetsStore } from '../stores/pets'
+import Chart from 'chart.js/auto'
 
 const route = useRoute()
 const router = useRouter()
@@ -171,6 +178,9 @@ const speciesEmoji = computed(() => {
   return map[pet.value?.species] || '🐾'
 })
 
+const weightChartCanvas = ref(null)
+let weightChart = null
+
 const tabs = [
   { id: 'visits',   label: 'Visitas',  icon: '📋' },
   { id: 'vaccines', label: 'Vacunas',  icon: '💉' },
@@ -182,6 +192,70 @@ const showConfirm = ref(false)
 const newVisit   = ref({ date: '', reason: '' })
 const newVaccine = ref({ name: '', date: '', nextDate: '' })
 const newWeight  = ref({ date: '', kg: null })
+
+onMounted(() => {
+  if (pet.value?.weights?.length >= 2) {
+    initWeightChart()
+  }
+})
+
+watch(() => pet.value?.weights, () => {
+  if (pet.value?.weights?.length >= 2) {
+    if (weightChart) {
+      weightChart.destroy()
+    }
+    initWeightChart()
+  }
+}, { deep: true })
+
+function initWeightChart() {
+  if (!weightChartCanvas.value) return
+  
+  const sortedWeights = [...pet.value.weights].sort((a, b) => new Date(a.date) - new Date(b.date))
+  const labels = sortedWeights.map(w => w.date)
+  const data = sortedWeights.map(w => w.kg)
+
+  weightChart = new Chart(weightChartCanvas.value, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Peso (kg)',
+        data: data,
+        borderColor: '#7B2FBE',
+        backgroundColor: 'rgba(123, 47, 190, 0.05)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 5,
+        pointBackgroundColor: '#7B2FBE',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: {
+          display: true,
+          labels: { font: { size: 12 }, color: '#2D3436' }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: false,
+          ticks: { color: '#666' },
+          grid: { color: 'rgba(0, 0, 0, 0.05)' }
+        },
+        x: {
+          ticks: { color: '#666' },
+          grid: { color: 'rgba(0, 0, 0, 0.05)' }
+        }
+      }
+    }
+  })
+}
 
 function confirmDelete() {
   store.removePet(pet.value.id)
@@ -442,6 +516,7 @@ function addNewWeight() {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  margin-bottom: 1.5rem;
 }
 
 .record-item {
@@ -502,6 +577,20 @@ function addNewWeight() {
   font-size: 1.2rem;
   font-weight: 800;
   color: var(--purple-deep);
+}
+
+/* GRÁFICA */
+.weight-chart-section {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1.5px solid var(--border-soft);
+}
+
+.chart-title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text-dark);
+  margin-bottom: 1.25rem;
 }
 
 .empty-section {
