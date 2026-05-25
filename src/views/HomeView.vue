@@ -8,11 +8,31 @@
         <p class="page-subtitle">Gestiona la salud de tus compañeros</p>
       </div>
       <div class="header-right">
+        <button class="btn-action-secondary" @click="exportData" title="Descargar mascotas como JSON">
+          📥 Exportar
+        </button>
+        <button class="btn-action-secondary" @click="triggerImport" title="Cargar mascotas desde JSON">
+          📤 Importar
+        </button>
+        <input
+          ref="fileInput"
+          type="file"
+          accept=".json"
+          style="display: none"
+          @change="importData"
+        />
         <button class="btn-add-toggle" @click="toggleForm">
           <span>{{ showForm ? '✕ Cancelar' : '+ Añadir mascota' }}</span>
         </button>
       </div>
     </div>
+
+    <!-- TOAST NOTIFICACIÓN -->
+    <Transition name="toast-slide">
+      <div v-if="toast" :class="['toast', toast.type]">
+        <span>{{ toast.message }}</span>
+      </div>
+    </Transition>
 
     <!-- FORMULARIO (crear o editar) -->
     <Transition name="slide-down">
@@ -77,6 +97,7 @@
         :name="pet.name"
         :species="pet.species"
         :age="pet.age"
+        :photo="pet.photo"
         @edit="onEditRequest"
       />
     </div>
@@ -95,6 +116,8 @@ const searchText = ref('')
 const selectedSpecies = ref('')
 const showForm = ref(false)
 const petToEdit = ref(null)
+const fileInput = ref(null)
+const toast = ref(null)
 
 const filteredPets = computed(() =>
   store.pets.filter(pet => {
@@ -109,7 +132,6 @@ const totalVaccines = computed(() => store.pets.reduce((acc, p) => acc + (p.vacc
 
 function toggleForm() {
   if (showForm.value && petToEdit.value) {
-    // Si estaba editando, cancela
     petToEdit.value = null
   }
   showForm.value = !showForm.value
@@ -118,7 +140,6 @@ function toggleForm() {
 function onEditRequest(id) {
   petToEdit.value = store.pets.find(p => p.id === id) || null
   showForm.value = true
-  // Scroll suave al formulario
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
@@ -136,6 +157,91 @@ function onCancel() {
   showForm.value = false
   petToEdit.value = null
 }
+
+// EXPORTAR JSON
+function exportData() {
+  const data = {
+    exported: new Date().toISOString(),
+    version: '1.0',
+    pets: store.pets
+  }
+  
+  const json = JSON.stringify(data, null, 2)
+  const blob = new Blob([json], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `mascotas_${new Date().toISOString().split('T')[0]}.json`
+  link.click()
+  URL.revokeObjectURL(url)
+  
+  showToast(`✅ ${store.pets.length} mascota${store.pets.length !== 1 ? 's' : ''} exportada${store.pets.length !== 1 ? 's' : ''}`, 'success')
+}
+
+// IMPORTAR JSON
+function triggerImport() {
+  fileInput.value?.click()
+}
+
+function importData(event) {
+  const file = event.target.files?.[0]
+  if (!file) return
+  
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    try {
+      const content = e.target?.result
+      const data = JSON.parse(content)
+      const pets = data.pets || data
+      
+      if (!Array.isArray(pets)) {
+        showToast('❌ Formato inválido. Debe ser un array de mascotas.', 'error')
+        return
+      }
+      
+      let added = 0
+      pets.forEach(pet => {
+        if (pet.name && pet.species && pet.age !== undefined) {
+          const existing = store.pets.find(p => p.id === pet.id)
+          if (!existing) {
+            store.addPet({
+              id: pet.id || Date.now(),
+              name: pet.name,
+              species: pet.species,
+              age: pet.age,
+              photo: pet.photo || null,
+              visits: pet.visits || [],
+              vaccines: pet.vaccines || [],
+              weights: pet.weights || []
+            })
+            added++
+          }
+        }
+      })
+      
+      if (added > 0) {
+        showToast(`✅ ${added} mascota${added !== 1 ? 's' : ''} importada${added !== 1 ? 's' : ''}`, 'success')
+      } else {
+        showToast('ℹ️ No hay mascotas nuevas para importar', 'info')
+      }
+    } catch (error) {
+      showToast('❌ Error al leer el archivo JSON', 'error')
+    }
+  }
+  reader.readAsText(file)
+  
+  // Reset file input
+  if (fileInput.value) {
+    fileInput.value.value = ''
+  }
+}
+
+function showToast(message, type = 'success') {
+  toast.value = { message, type }
+  setTimeout(() => {
+    toast.value = null
+  }, 3000)
+}
 </script>
 
 <style scoped>
@@ -151,6 +257,17 @@ function onCancel() {
   justify-content: space-between;
   margin-bottom: 2rem;
   gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.header-left {
+  flex: 1;
+}
+
+.header-right {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-end;
   flex-wrap: wrap;
 }
 
@@ -179,11 +296,74 @@ function onCancel() {
   box-shadow: var(--shadow-md);
   transition: all var(--transition);
   white-space: nowrap;
+  cursor: pointer;
 }
 
 .btn-add-toggle:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
+}
+
+.btn-action-secondary {
+  background: white;
+  color: var(--purple-mid);
+  border: 1.5px solid var(--border-soft);
+  padding: 0.65rem 1.25rem;
+  border-radius: var(--radius-lg);
+  font-weight: 700;
+  font-size: 0.9rem;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.btn-action-secondary:hover {
+  background: var(--purple-ghost);
+  border-color: var(--purple-mid);
+  transform: translateY(-2px);
+}
+
+/* TOAST */
+.toast {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  padding: 1rem 1.5rem;
+  border-radius: var(--radius-lg);
+  font-weight: 700;
+  box-shadow: var(--shadow-lg);
+  z-index: 999;
+  max-width: 300px;
+}
+
+.toast.success {
+  background: #dcfce7;
+  color: #166534;
+  border: 1.5px solid #86efac;
+}
+
+.toast.error {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1.5px solid #fca5a5;
+}
+
+.toast.info {
+  background: #dbeafe;
+  color: #1e40af;
+  border: 1.5px solid #93c5fd;
+}
+
+.toast-slide-enter-active,
+.toast-slide-leave-active {
+  transition: all 0.3s ease;
+}
+
+.toast-slide-enter-from,
+.toast-slide-leave-to {
+  opacity: 0;
+  transform: translateX(20px);
 }
 
 .search-bar {
