@@ -1,0 +1,43 @@
+:root {
+  --purple-deep: #5B1E8C;
+  --purple-main: #7B2FBE;
+  --purple-mid: #9B4DCA;
+  --purple-light: #C084E0;
+  --purple-soft: #EDD9F7;
+  --purple-ghost: #F7EFFE;
+  --pink-accent: #E040A0;
+  --sidebar-w: 240px;
+  
+  --bg-page: #f9f7ff;
+  --bg-sidebar: #f5f3ff;
+  --border-soft: #e5dff5;
+  --border-mid: #d4cde8;
+  --text-dark: #1a0033;
+  --text-body: #4a4a4a;
+  --text-muted: #999;
+  
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --transition: all 0.3s ease;
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.16);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--bg-page);
+  color: var(--text-body);
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}

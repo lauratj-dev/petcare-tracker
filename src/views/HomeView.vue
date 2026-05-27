@@ -43,11 +43,11 @@
         <button @click="handleLogout" class="btn-logout">Logout</button>
       </div>
 
-      <!-- RESTO DE LA APP -->
-      <PetForm v-if="showForm" @added="onAdded" @cancel="showForm = false" />
-      
+      <!-- FORMULARIO O BOTÓN AÑADIR -->
+      <PetForm v-if="showForm" :petToEdit="petToEdit" @added="onAdded" @cancel="showForm = false" />
       <button v-else @click="showForm = true" class="btn-add">+ Añadir mascota</button>
 
+      <!-- MASCOTAS -->
       <div v-if="petsStore.pets.length === 0" class="empty">
         <p>No hay mascotas. Añade una para empezar.</p>
       </div>
@@ -87,9 +87,14 @@ const showForm = ref(false)
 const petToEdit = ref(null)
 
 onMounted(async () => {
-  if (authStore.user) {
-    await petsStore.loadPets()
-  }
+  const checkAuth = setInterval(async () => {
+    if (authStore.initialized) {
+      if (authStore.user) {
+        await petsStore.loadPets()
+      }
+      clearInterval(checkAuth)
+    }
+  }, 50)
 })
 
 const handleLogin = async () => {
@@ -124,6 +129,7 @@ const handleLogout = async () => {
 
 const onAdded = () => {
   showForm.value = false
+  petToEdit.value = null
   petsStore.loadPets()
 }
 
