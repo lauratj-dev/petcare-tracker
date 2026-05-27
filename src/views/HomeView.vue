@@ -44,7 +44,7 @@
       </div>
 
       <!-- FORMULARIO O BOTÓN AÑADIR -->
-      <PetForm v-if="showForm" :petToEdit="petToEdit" @added="onAdded" @cancel="showForm = false" />
+      <PetForm v-if="showForm" :petToEdit="petToEdit" @added="onAdded" @cancel="onCancel" />
       <button v-else @click="showForm = true" class="btn-add">+ Añadir mascota</button>
 
       <!-- MASCOTAS -->
@@ -72,6 +72,8 @@
 import { ref, onMounted } from 'vue'
 import { useAuthStore } from '../stores/auth.js'
 import { usePetsFirestoreStore } from '../stores/pets-firestore.js'
+import { auth } from '../firebase.js'
+import { onAuthStateChanged } from 'firebase/auth'
 import PetCard from '../components/PetCard.vue'
 import PetForm from '../components/PetForm.vue'
 
@@ -88,13 +90,15 @@ const petToEdit = ref(null)
 
 onMounted(async () => {
   const checkAuth = setInterval(async () => {
-    if (authStore.initialized) {
-      if (authStore.user) {
-        await petsStore.loadPets()
-      }
+    if (authStore.user) {
+      await petsStore.loadPets()
       clearInterval(checkAuth)
     }
-  }, 50)
+  }, 100)
+  
+  setTimeout(() => {
+    clearInterval(checkAuth)
+  }, 5000)
 })
 
 const handleLogin = async () => {
@@ -131,6 +135,11 @@ const onAdded = () => {
   showForm.value = false
   petToEdit.value = null
   petsStore.loadPets()
+}
+
+const onCancel = () => {
+  showForm.value = false
+  petToEdit.value = null
 }
 
 const onEditRequest = (id) => {
