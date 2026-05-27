@@ -24,8 +24,8 @@
 
     <div class="tab-content">
       <VaccineForm v-if="activeTab === 'vacunas'" :petId="pet.id" :pet="pet" />
-      <div v-else-if="activeTab === 'visitas'" class="placeholder">Próximamente: Visitas al veterinario</div>
-      <div v-else-if="activeTab === 'peso'" class="placeholder">Próximamente: Gráfica de peso</div>
+      <VisitForm v-else-if="activeTab === 'visitas'" :petId="pet.id" :pet="pet" />
+      <WeightForm v-else-if="activeTab === 'peso'" :petId="pet.id" :pet="pet" />
     </div>
 
     <button @click="deletePet" class="btn-delete">Eliminar mascota</button>
@@ -38,6 +38,8 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { usePetsFirestoreStore } from '../stores/pets-firestore.js'
 import VaccineForm from '../components/VaccineForm.vue'
+import VisitForm from '../components/VisitForm.vue'
+import WeightForm from '../components/WeightForm.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -138,12 +140,6 @@ const deletePet = async () => {
   padding: 2rem;
   border-radius: 12px;
   margin-bottom: 2rem;
-}
-
-.placeholder {
-  text-align: center;
-  padding: 3rem;
-  color: #999;
 }
 
 .btn-delete {
