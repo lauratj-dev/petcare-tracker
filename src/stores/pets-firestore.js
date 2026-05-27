@@ -76,5 +76,25 @@ export const usePetsFirestoreStore = defineStore('petsFirestore', () => {
     }
   }
 
-  return { pets, loading, addPet, loadPets, deletePet, updatePet }
+  const addVaccine = async (petId, vaccine) => {
+    loading.value = true
+    try {
+      await updateDoc(doc(db, 'pets', petId), {
+        vaccines: arrayUnion(vaccine)
+      })
+      const pet = pets.value.find(p => p.id === petId)
+      if (pet) {
+        pet.vaccines = pet.vaccines || []
+        pet.vaccines.push(vaccine)
+      }
+      return true
+    } catch (error) {
+      console.error('Error añadiendo vacuna:', error)
+      return false
+    } finally {
+      loading.value = false
+    }
+  }
+
+  return { pets, loading, addPet, loadPets, deletePet, updatePet, addVaccine }
 })
