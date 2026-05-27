@@ -96,5 +96,103 @@ export const usePetsFirestoreStore = defineStore('petsFirestore', () => {
     }
   }
 
-  return { pets, loading, addPet, loadPets, deletePet, updatePet, addVaccine }
+  const addVisit = async (petId, visit) => {
+    loading.value = true
+    try {
+      await updateDoc(doc(db, 'pets', petId), {
+        visits: arrayUnion(visit)
+      })
+      const pet = pets.value.find(p => p.id === petId)
+      if (pet) {
+        pet.visits = pet.visits || []
+        pet.visits.push(visit)
+      }
+      return true
+    } catch (error) {
+      console.error('Error añadiendo visita:', error)
+      return false
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const removeVaccine = async (petId, vaccineIndex) => {
+    loading.value = true
+    try {
+      const pet = pets.value.find(p => p.id === petId)
+      if (pet && pet.vaccines) {
+        const newVaccines = pet.vaccines.filter((_, idx) => idx !== vaccineIndex)
+        await updateDoc(doc(db, 'pets', petId), {
+          vaccines: newVaccines
+        })
+        pet.vaccines = newVaccines
+      }
+      return true
+    } catch (error) {
+      console.error('Error eliminando vacuna:', error)
+      return false
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const removeVisit = async (petId, visitIndex) => {
+    loading.value = true
+    try {
+      const pet = pets.value.find(p => p.id === petId)
+      if (pet && pet.visits) {
+        const newVisits = pet.visits.filter((_, idx) => idx !== visitIndex)
+        await updateDoc(doc(db, 'pets', petId), {
+          visits: newVisits
+        })
+        pet.visits = newVisits
+      }
+      return true
+    } catch (error) {
+      console.error('Error eliminando visita:', error)
+      return false
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const removeWeight = async (petId, weightIndex) => {
+    loading.value = true
+    try {
+      const pet = pets.value.find(p => p.id === petId)
+      if (pet && pet.weights) {
+        const newWeights = pet.weights.filter((_, idx) => idx !== weightIndex)
+        await updateDoc(doc(db, 'pets', petId), {
+          weights: newWeights
+        })
+        pet.weights = newWeights
+      }
+      return true
+    } catch (error) {
+      console.error('Error eliminando peso:', error)
+      return false
+    } finally {
+      loading.value = false
+    }
+  }
+const addWeight = async (petId, weight) => {
+  loading.value = true
+  try {
+    await updateDoc(doc(db, 'pets', petId), {
+      weights: arrayUnion(weight)
+    })
+    const pet = pets.value.find(p => p.id === petId)
+    if (pet) {
+      pet.weights = pet.weights || []
+      pet.weights.push(weight)
+    }
+    return true
+  } catch (error) {
+    console.error('Error añadiendo peso:', error)
+    return false
+  } finally {
+    loading.value = false
+  }
+}
+  return { pets, loading, addPet, loadPets, deletePet, updatePet, addVaccine, addVisit, removeVaccine, removeVisit, removeWeight, addWeight }
 })

@@ -1,21 +1,21 @@
 <template>
-  <div class="vaccine-form">
-    <h3>Añadir vacuna</h3>
-    <form @submit.prevent="submitVaccine" class="vaccine-input">
-      <input v-model="vaccineName" type="text" placeholder="Nombre vacuna (ej: Rabia)" required />
-      <input v-model="nextDate" type="date" required />
+  <div class="weight-form">
+    <h3>Registrar peso</h3>
+    <form @submit.prevent="submitWeight" class="weight-input">
+      <input v-model.number="weightValue" type="number" step="0.1" placeholder="Peso (kg)" required />
+      <input v-model="weightDate" type="date" required />
       <button type="submit" :disabled="petsStore.loading">{{ petsStore.loading ? 'Guardando...' : 'Añadir' }}</button>
     </form>
     
-    <div v-if="pet.vaccines && pet.vaccines.length > 0" class="vaccines-list">
-      <h4>Vacunas registradas:</h4>
-      <div v-for="(vaccine, idx) in pet.vaccines" :key="idx" class="vaccine-item">
-        <span>{{ vaccine.name }} - {{ vaccine.nextDate }}</span>
-        <button @click.prevent="deleteVaccine(idx)" class="btn-delete-item" type="button">🗑️</button>
+    <div v-if="pet.weights && pet.weights.length > 0" class="weights-list">
+      <h4>Registro de peso:</h4>
+      <div v-for="(weight, idx) in pet.weights" :key="idx" class="weight-item">
+        <span>{{ weight.weightDate }}: {{ weight.weightValue }} kg</span>
+        <button @click="deleteWeight(idx)" class="btn-delete-item" type="button">🗑️</button>
       </div>
     </div>
-    <div v-else class="no-vaccines">
-      <p>No hay vacunas registradas aún</p>
+    <div v-else class="no-weights">
+      <p>No hay registro de peso aún</p>
     </div>
   </div>
 </template>
@@ -30,48 +30,48 @@ const props = defineProps({
 })
 
 const petsStore = usePetsFirestoreStore()
-const vaccineName = ref('')
-const nextDate = ref('')
+const weightValue = ref('')
+const weightDate = ref('')
 
-const submitVaccine = async () => {
-  if (!vaccineName.value || !nextDate.value) return
+const submitWeight = async () => {
+  if (!weightValue.value || !weightDate.value) return
   
-  await petsStore.addVaccine(props.petId, {
-    name: vaccineName.value,
-    nextDate: nextDate.value
+  await petsStore.addWeight(props.petId, {
+    weightValue: weightValue.value,
+    weightDate: weightDate.value
   })
-  vaccineName.value = ''
-  nextDate.value = ''
+  weightValue.value = ''
+  weightDate.value = ''
 }
 
-const deleteVaccine = async (idx) => {
-  if (confirm('¿Eliminar esta vacuna?')) {
-    await petsStore.removeVaccine(props.petId, idx)
+const deleteWeight = async (idx) => {
+  if (confirm('¿Eliminar este registro?')) {
+    await petsStore.removeWeight(props.petId, idx)
   }
 }
 </script>
 
 <style scoped>
-.vaccine-form {
+.weight-form {
   background: white;
   padding: 2rem;
   border-radius: 12px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-.vaccine-form h3 {
+.weight-form h3 {
   color: #7B2FBE;
   margin-bottom: 1.5rem;
   font-size: 1.2rem;
 }
 
-.vaccine-input {
+.weight-input {
   display: flex;
   gap: 0.75rem;
   margin-bottom: 2rem;
 }
 
-.vaccine-input input {
+.weight-input input {
   flex: 1;
   padding: 0.75rem;
   border: 1.5px solid #ddd;
@@ -79,13 +79,13 @@ const deleteVaccine = async (idx) => {
   font-size: 1rem;
 }
 
-.vaccine-input input:focus {
+.weight-input input:focus {
   outline: none;
   border-color: #7B2FBE;
   box-shadow: 0 0 0 3px rgba(123, 47, 190, 0.1);
 }
 
-.vaccine-input button {
+.weight-input button {
   padding: 0.75rem 1.5rem;
   background: linear-gradient(135deg, #7B2FBE, #5B1E8C);
   color: white;
@@ -96,22 +96,22 @@ const deleteVaccine = async (idx) => {
   white-space: nowrap;
 }
 
-.vaccine-input button:hover:not(:disabled) {
+.weight-input button:hover:not(:disabled) {
   transform: translateY(-2px);
 }
 
-.vaccine-input button:disabled {
+.weight-input button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-.vaccines-list h4 {
+.weights-list h4 {
   color: #333;
   margin-bottom: 1rem;
   font-size: 1rem;
 }
 
-.vaccine-item {
+.weight-item {
   background: #f9f7ff;
   padding: 1rem;
   margin-bottom: 0.75rem;
@@ -137,7 +137,7 @@ const deleteVaccine = async (idx) => {
   transform: scale(1.2);
 }
 
-.no-vaccines {
+.no-weights {
   text-align: center;
   padding: 2rem;
   color: #999;
