@@ -48,13 +48,13 @@
       
       <button v-else @click="showForm = true" class="btn-add">+ Añadir mascota</button>
 
-      <div v-if="store.pets.length === 0" class="empty">
+      <div v-if="petsStore.pets.length === 0" class="empty">
         <p>No hay mascotas. Añade una para empezar.</p>
       </div>
 
       <div v-else class="pets-grid">
         <PetCard
-          v-for="pet in store.pets"
+          v-for="pet in petsStore.pets"
           :key="pet.id"
           :id="pet.id"
           :name="pet.name"
@@ -69,14 +69,14 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useAuthStore } from '../stores/auth.js'
-import { usePetsStore } from '../stores/pets.js'
+import { usePetsFirestoreStore } from '../stores/pets-firestore.js'
 import PetCard from '../components/PetCard.vue'
 import PetForm from '../components/PetForm.vue'
 
 const authStore = useAuthStore()
-const store = usePetsStore()
+const petsStore = usePetsFirestoreStore()
 
 const activeTab = ref('login')
 const email = ref('')
@@ -86,21 +86,30 @@ const error = ref('')
 const showForm = ref(false)
 const petToEdit = ref(null)
 
+onMounted(async () => {
+  if (authStore.user) {
+    await petsStore.loadPets()
+  }
+})
+
 const handleLogin = async () => {
   error.value = ''
   const success = await authStore.login(email.value, password.value)
-  if (!success) error.value = 'Email o contraseña incorrectos'
-  else {
+  if (!success) {
+    error.value = 'Email o contraseña incorrectos'
+  } else {
     email.value = ''
     password.value = ''
+    await petsStore.loadPets()
   }
 }
 
 const handleRegister = async () => {
   error.value = ''
   const success = await authStore.register(email.value, password.value, name.value)
-  if (!success) error.value = 'Error al registrarse'
-  else {
+  if (!success) {
+    error.value = 'Error al registrarse'
+  } else {
     email.value = ''
     password.value = ''
     name.value = ''
@@ -110,14 +119,16 @@ const handleRegister = async () => {
 
 const handleLogout = async () => {
   await authStore.logout()
+  petsStore.pets = []
 }
 
 const onAdded = () => {
   showForm.value = false
+  petsStore.loadPets()
 }
 
 const onEditRequest = (id) => {
-  petToEdit.value = store.pets.find(p => p.id === id)
+  petToEdit.value = petsStore.pets.find(p => p.id === id)
   showForm.value = true
 }
 </script>
