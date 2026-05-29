@@ -2,18 +2,31 @@
   <div class="weight-form">
     <h3>Registrar peso</h3>
     <form @submit.prevent="submitWeight" class="weight-input">
-      <input v-model.number="weightValue" type="number" step="0.1" placeholder="Peso (kg)" required />
+      <input
+        v-model.number="weightValue"
+        type="number"
+        step="0.1"
+        placeholder="Peso (kg)"
+        required
+      />
       <input v-model="weightDate" type="date" required />
-      <button type="submit" :disabled="petsStore.loading">{{ petsStore.loading ? 'Guardando...' : 'Añadir' }}</button>
+      <button type="submit" :disabled="petsStore.loading">
+        {{ petsStore.loading ? 'Guardando...' : 'Añadir' }}
+      </button>
     </form>
-    
-    <div v-if="pet.weights && pet.weights.length > 0" class="weights-list">
+
+    <div v-if="pet.weights && pet.weights.length > 0">
+      <div class="chart-container">
+        <canvas ref="chartCanvas"></canvas>
+      </div>
+
       <h4>Registro de peso:</h4>
-      <div v-for="(weight, idx) in pet.weights" :key="idx" class="weight-item">
+      <div v-for="(weight, idx) in sortedWeights" :key="idx" class="weight-item">
         <span>{{ weight.weightDate }}: {{ weight.weightValue }} kg</span>
         <button @click="deleteWeight(idx)" class="btn-delete-item" type="button">🗑️</button>
       </div>
     </div>
+
     <div v-else class="no-weights">
       <p>No hay registro de peso aún</p>
     </div>
@@ -21,24 +34,99 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { usePetsFirestoreStore } from '../stores/pets-firestore.js'
+import { ref, computed, watch, onMounted, nextTick } from 'vue'
+import {
+  Chart,
+  LineElement,
+  PointElement,
+  LinearScale,
+  CategoryScale,
+  Tooltip,
+  Legend,
+  LineController,
+} from 'chart.js'
+import { usePetsFirestoreStore } from '../stores/pets-firestore.ts'
+
+Chart.register(
+  LineElement,
+  PointElement,
+  LinearScale,
+  CategoryScale,
+  Tooltip,
+  Legend,
+  LineController,
+)
 
 const props = defineProps({
   petId: String,
-  pet: Object
+  pet: Object,
 })
 
 const petsStore = usePetsFirestoreStore()
 const weightValue = ref('')
 const weightDate = ref('')
+const chartCanvas = ref(null)
+let chartInstance = null
+
+const sortedWeights = computed(() => {
+  if (!props.pet.weights) return []
+  return [...props.pet.weights].sort((a, b) => a.weightDate.localeCompare(b.weightDate))
+})
+
+const renderChart = async () => {
+  await nextTick()
+  if (!chartCanvas.value || !sortedWeights.value.length) return
+
+  if (chartInstance) {
+    chartInstance.destroy()
+  }
+
+  chartInstance = new Chart(chartCanvas.value, {
+    type: 'line',
+    data: {
+      labels: sortedWeights.value.map((w) => w.weightDate),
+      datasets: [
+        {
+          label: 'Peso (kg)',
+          data: sortedWeights.value.map((w) => w.weightValue),
+          borderColor: '#7B2FBE',
+          backgroundColor: 'rgba(123, 47, 190, 0.1)',
+          borderWidth: 2,
+          pointBackgroundColor: '#7B2FBE',
+          pointRadius: 5,
+          tension: 0.3,
+          fill: true,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => `${ctx.parsed.y} kg`,
+          },
+        },
+      },
+      scales: {
+        y: {
+          beginAtZero: false,
+          ticks: { callback: (val) => `${val} kg` },
+        },
+      },
+    },
+  })
+}
+
+watch(sortedWeights, () => renderChart(), { deep: true })
+onMounted(() => renderChart())
 
 const submitWeight = async () => {
   if (!weightValue.value || !weightDate.value) return
-  
   await petsStore.addWeight(props.petId, {
     weightValue: weightValue.value,
-    weightDate: weightDate.value
+    weightDate: weightDate.value,
   })
   weightValue.value = ''
   weightDate.value = ''
@@ -60,7 +148,7 @@ const deleteWeight = async (idx) => {
 }
 
 .weight-form h3 {
-  color: #7B2FBE;
+  color: #7b2fbe;
   margin-bottom: 1.5rem;
   font-size: 1.2rem;
 }
@@ -81,13 +169,13 @@ const deleteWeight = async (idx) => {
 
 .weight-input input:focus {
   outline: none;
-  border-color: #7B2FBE;
+  border-color: #7b2fbe;
   box-shadow: 0 0 0 3px rgba(123, 47, 190, 0.1);
 }
 
 .weight-input button {
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #7B2FBE, #5B1E8C);
+  background: linear-gradient(135deg, #7b2fbe, #5b1e8c);
   color: white;
   border: none;
   border-radius: 8px;
@@ -115,7 +203,7 @@ const deleteWeight = async (idx) => {
   background: #f9f7ff;
   padding: 1rem;
   margin-bottom: 0.75rem;
-  border-left: 4px solid #7B2FBE;
+  border-left: 4px solid #7b2fbe;
   border-radius: 6px;
   font-size: 0.95rem;
   color: #666;
@@ -143,4 +231,12 @@ const deleteWeight = async (idx) => {
   color: #999;
   font-style: italic;
 }
+
+.chart-container {
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: #f9f7ff;
+  border-radius: 12px;
+}
 </style>
+S
