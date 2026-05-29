@@ -1,176 +1,160 @@
-# PetCare Tracker
+# 🐾 PetCare Tracker
 
-Una aplicación web para gestionar y dar seguimiento a tus mascotas: registrar datos básicos, visitas al veterinario, vacunas y peso.
+Una aplicación web full-stack para gestionar y dar seguimiento a tus mascotas: registrar datos básicos, visitas al veterinario, vacunas y evolución de peso.
 
 ## 🚀 Demo en vivo
+[Ver la app aquí](https://petcare-tracker.vercel.app)
 
-**[Ver la app aquí](https://petcare-tracker-one.vercel.app)**
+---
 
 ## ✨ Características
 
-- ✅ Registra tus mascotas (nombre, especie, edad)
+- ✅ Registra tus mascotas (nombre, especie, edad, foto)
 - ✅ Guarda historial de visitas al veterinario
 - ✅ Registra vacunas y próximas dosis
-- ✅ Sigue el peso de tus mascotas
+- ✅ Sigue el peso de tus mascotas con gráfica de evolución
 - ✅ Busca mascotas por nombre
 - ✅ Filtra por especie
-- ✅ Datos persistentes (se guardan en tu navegador)
+- ✅ Autenticación real con Firebase Auth
+- ✅ Datos en la nube con Firestore (cada usuario ve solo sus mascotas)
+- ✅ PWA instalable en móvil
+- ✅ Monitoring de errores con Sentry
+
+---
 
 ## 🛠️ Tecnologías
 
-- **Frontend:** Vue 3 + Composition API
-- **Estado:** Pinia
-- **Enrutamiento:** Vue Router
-- **Estilos:** Sass
-- **Testing:** Vitest
-- **Build:** Vite
-- **Deploy:** Vercel
-- **CI/CD:** GitHub Actions
-- **Containerización:** Docker
+| Área | Tecnología |
+|------|------------|
+| Frontend | Vue 3 + Composition API |
+| Estado | Pinia |
+| Enrutamiento | Vue Router |
+| Estilos | Sass |
+| Gráficas | Chart.js |
+| Auth | Firebase Authentication |
+| Base de datos | Firestore |
+| Testing | Vitest + Vue Test Utils |
+| Tipos | TypeScript |
+| Build | Vite |
+| Deploy | Vercel |
+| CI/CD | GitHub Actions |
+| Contenedor | Docker + Nginx |
+| Monitoring | Sentry |
+| PWA | vite-plugin-pwa |
+| Pre-commit | Husky + lint-staged |
+
+---
 
 ## 📦 Instalación local
 
-1. **Clona el repositorio:**
+1. Clona el repositorio:
 ```bash
-   git clone https://github.com/lauratj-dev/petcare-tracker.git
-   cd petcare-tracker
+git clone https://github.com/lauratj-dev/petcare-tracker.git
+cd petcare-tracker
 ```
 
-2. **Instala dependencias:**
+2. Instala dependencias:
 ```bash
-   npm install
+npm install
 ```
 
-3. **Arranca el servidor de desarrollo:**
+3. Arranca el servidor de desarrollo:
 ```bash
-   npm run dev
+npm run dev
 ```
 
-4. **Abre en tu navegador:**
-http://localhost:5173/
+4. Abre en tu navegador: `http://localhost:5173/`
+
+---
 
 ## 🧪 Tests
-
-Para ejecutar los tests automáticos:
 
 ```bash
 npm run test:unit
 ```
 
+---
+
 ## 🐳 Docker
 
-Para ejecutar con Docker:
-
 ```bash
-docker build -t petcare-tracker .
-docker run -p 8080:3000 petcare-tracker
+docker-compose up --build
 ```
 
 Luego abre: `http://localhost:8080`
 
-## 📁 Estructura del proyecto
-src/
-├── components/          # Componentes Vue reutilizables
-│   ├── PetCard.vue     # Tarjeta de mascota
-│   └── PetForm.vue     # Formulario para añadir mascotas
-├── views/              # Páginas principales
-│   ├── HomeView.vue    # Página de inicio (lista de mascotas)
-│   └── PetDetailView.vue # Página de detalle de mascota
-├── stores/             # Estado global (Pinia)
-│   └── pets.js         # Store de mascotas
-├── router/             # Configuración de rutas
-│   └── index.js
-└── assets/
-└── styles/         # Estilos globales y variables Sass
+---
 
-## 🎯 Roadmap - Próximas mejoras
- 
-Este proyecto está en **desarrollo activo**. Aquí están las próximas fases planificadas:
- 
+## 📁 Estructura del proyecto
+
+src/
+├── components/         # Componentes Vue reutilizables
+│   ├── PetCard.vue
+│   ├── PetForm.vue
+│   ├── VaccineForm.vue
+│   ├── VisitForm.vue
+│   └── WeightForm.vue
+├── views/              # Páginas principales
+│   ├── HomeView.vue
+│   └── PetDetailView.vue
+├── stores/             # Estado global (Pinia)
+│   ├── auth.ts
+│   ├── pets-firestore.ts
+│   └── counter.ts
+├── router/
+│   └── index.js
+├── firebase.js
+└── assets/
+└── styles/
+
+---
+
+## 🎯 Roadmap
+
 ### 🎨 Fase 1: Diseño y UX ✅ Completada
- 
-Mejorar la interfaz y experiencia del usuario.
- 
-- [x] Tema visual mejorado con paleta de colores morada/lila
-- [x] Animaciones suaves al interactuar (Vue Transitions)
-- [x] Avatares/iconos personalizados según especie
-- [x] Responsive 100% (móvil, tablet, desktop)
-- [ ] Modo oscuro/claro con toggle
-- [ ] Toast notifications (mensajes de éxito/error)
-- [ ] Logo y favicon personalizado
-**Tecnologías:** CSS Animations, Vue Transitions, CSS Custom Properties
- 
----
- 
-### ⚡ Fase 2: Funcionalidades nuevas ← En progreso
- 
-Expandir las capacidades de la app.
- 
-- [ ] Botón de borrar mascota (con confirmación)
-- [ ] Editar datos de la mascota
-- [ ] Upload de foto para cada mascota
-- [ ] Gráfica de evolución de peso (Chart.js)
-- [ ] Recordatorios de vacunas (alertas)
-- [ ] Exportar informe a PDF
-- [ ] Importar/Exportar datos (JSON backup)
-**Tecnologías:** Chart.js, jsPDF, File API
- 
----
- 
-### 🔐 Fase 3: Backend y Autenticación ⭐ Próximo gran paso
- 
-Transformar en una app full-stack real.
- 
-- [ ] Backend con Node.js + Express
-- [ ] Base de datos MongoDB
-- [ ] API REST completa (CRUD)
-- [ ] Autenticación de usuarios (JWT)
-- [ ] Cada usuario ve solo sus mascotas
-- [ ] Deploy del backend (Render/Railway)
-**Tecnologías:** Node.js, Express, MongoDB, JWT, REST API
- 
----
- 
-### 🧪 Fase 4: Calidad profesional
- 
-Estándares de código y testing enterprise.
- 
-- [ ] Aumentar cobertura de tests (80%+)
-- [ ] Tests E2E con Cypress
-- [ ] Migración a TypeScript
-- [ ] Pre-commit hooks (husky)
-- [ ] Documentación de API (Swagger)
-- [ ] Logs estructurados en backend
-**Tecnologías:** Cypress, TypeScript, Swagger, Winston
- 
----
- 
-### 🚀 Fase 5: DevOps y producción
- 
-Despliegue profesional y observabilidad.
- 
-- [ ] GitHub Actions completo (CI/CD avanzado)
-- [ ] Docker Compose (full stack containerizado)
-- [ ] Monitoring con Sentry
-- [ ] Analytics con Vercel Analytics
-- [ ] PWA (instalable en móvil)
-- [ ] Custom domain
-**Tecnologías:** Docker Compose, Sentry, PWA, GitHub Actions
+- ✅ Tema visual mejorado con paleta morada/lila
+- ✅ Logo y favicon personalizado
+- ✅ Responsive 100%
+
+### ⚡ Fase 2: Funcionalidades ✅ Completada
+- ✅ CRUD completo con modales de confirmación
+- ✅ Upload de foto por mascota
+- ✅ Gráfica de evolución de peso (Chart.js)
+- ✅ Registro de vacunas y visitas al veterinario
+
+### 🔐 Fase 3: Backend y Autenticación ✅ Completada
+- ✅ Autenticación real con Firebase Auth
+- ✅ Base de datos en la nube con Firestore
+- ✅ Cada usuario ve solo sus mascotas
+- ✅ Deploy en Vercel
+
+### 🧪 Fase 4: Calidad profesional ✅ Completada
+- ✅ Tests unitarios con Vitest (11 tests)
+- ✅ Migración a TypeScript
+- ✅ Pre-commit hooks con Husky + lint-staged
+
+### 🚀 Fase 5: DevOps y producción ✅ Completada
+- ✅ Docker Compose con Nginx
+- ✅ Monitoring con Sentry (errores + session replay)
+- ✅ PWA instalable en móvil
+- ✅ CI/CD con GitHub Actions
 
 ---
 
 ## 📊 Estado actual
 
 | Aspecto | Estado |
-|---------|--------|
+|--------|--------|
 | Frontend | ✅ Funcional y desplegado |
-| Backend | ⏳ Próximamente |
-| Tests | ✅ Tests unitarios (4/4) |
-| CI/CD | ✅ GitHub Actions configurado |
-| Docker | ✅ Dockerfile presente |
+| Autenticación | ✅ Firebase Auth |
+| Base de datos | ✅ Firestore |
+| Tests | ✅ 11 tests unitarios |
+| TypeScript | ✅ Migración parcial |
+| CI/CD | ✅ GitHub Actions |
+| Docker | ✅ Docker Compose + Nginx |
+| Monitoring | ✅ Sentry |
+| PWA | ✅ Instalable en móvil |
 | Documentación | ✅ README profesional |
-| Autenticación | ⏳ Próximamente |
-| Base de datos real | ⏳ Próximamente |
 
 ---
 
@@ -178,19 +162,20 @@ Despliegue profesional y observabilidad.
 
 ¿Quieres seguir el desarrollo? Las próximas mejoras se anunciarán en GitHub Issues.
 
-Puedes:
 - ⭐ Star el repo si te gusta
 - 👀 Watch para seguir actualizaciones
 - 💬 Comentar sugerencias en Issues
+
+---
 
 ## 📝 Licencia
 
 Este proyecto está disponible bajo la licencia MIT.
 
-## 👤 Autor
-
-Creado por Laura Torres Jiménez
-
 ---
 
-**Hecho con ❤️ durante un curso de 14 días aprendiendo Vue 3**
+## 👤 Autora
+
+Creado por **Laura Torres Jiménez**
+
+Hecho con ❤️ aprendiendo Vue 3, Firebase y DevOps desde cero
