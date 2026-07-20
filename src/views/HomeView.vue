@@ -11,28 +11,48 @@
             v-for="tab in ['login', 'register']"
             :key="tab"
             :class="{ active: activeTab === tab }"
-            @click="activeTab = tab"
+            @click="cambiarTab(tab)"
+            type="button"
           >
             {{ tab === 'login' ? 'Iniciar sesión' : 'Registrarse' }}
           </button>
         </div>
 
+        <!-- MENSAJES -->
+        <p v-if="authStore.error" class="alert alert-error">{{ authStore.error }}</p>
+        <p v-if="mensajeExito" class="alert alert-success">{{ mensajeExito }}</p>
+
         <!-- LOGIN -->
         <form v-if="activeTab === 'login'" @submit.prevent="handleLogin" class="form">
-          <input v-model="email" type="email" placeholder="Email" required />
-          <input v-model="password" type="password" placeholder="Contraseña" required />
-          <button type="submit" :disabled="authStore.loading">{{ authStore.loading ? 'Cargando...' : 'Entrar' }}</button>
+          <input v-model="email" type="email" placeholder="Email" required autocomplete="email" />
+          <input
+            v-model="password"
+            type="password"
+            placeholder="Contraseña"
+            required
+            autocomplete="current-password"
+          />
+          <button type="submit" :disabled="authStore.loading">
+            {{ authStore.loading ? 'Cargando...' : 'Entrar' }}
+          </button>
         </form>
 
         <!-- REGISTRO -->
         <form v-if="activeTab === 'register'" @submit.prevent="handleRegister" class="form">
-          <input v-model="name" type="text" placeholder="Nombre" required />
-          <input v-model="email" type="email" placeholder="Email" required />
-          <input v-model="password" type="password" placeholder="Contraseña" required />
-          <button type="submit" :disabled="authStore.loading">{{ authStore.loading ? 'Cargando...' : 'Registrarse' }}</button>
+          <input v-model="name" type="text" placeholder="Nombre" required autocomplete="name" />
+          <input v-model="email" type="email" placeholder="Email" required autocomplete="email" />
+          <input
+            v-model="password"
+            type="password"
+            placeholder="Contraseña (mínimo 6 caracteres)"
+            required
+            minlength="6"
+            autocomplete="new-password"
+          />
+          <button type="submit" :disabled="authStore.loading">
+            {{ authStore.loading ? 'Cargando...' : 'Registrarse' }}
+          </button>
         </form>
-
-        <p v-if="error" class="error">{{ error }}</p>
       </div>
     </div>
 
@@ -40,12 +60,14 @@
     <div v-else class="app-section">
       <div class="header">
         <h1>Mis Mascotas</h1>
-        <button @click="handleLogout" class="btn-logout">Logout</button>
+        <button @click="handleLogout" class="btn-logout" type="button">Logout</button>
       </div>
 
       <!-- FORMULARIO O BOTÓN AÑADIR -->
       <PetForm v-if="showForm" :petToEdit="petToEdit" @added="onAdded" @cancel="onCancel" />
-      <button v-else @click="showForm = true" class="btn-add">+ Añadir mascota</button>
+      <button v-else @click="showForm = true" class="btn-add" type="button">
+        + Añadir mascota
+      </button>
 
       <!-- MASCOTAS -->
       <div v-if="petsStore.pets.length === 0" class="empty">
@@ -69,11 +91,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, watch } from 'vue'
 import { useAuthStore } from '../stores/auth.js'
 import { usePetsFirestoreStore } from '../stores/pets-firestore.js'
-import { auth } from '../firebase.js'
-import { onAuthStateChanged } from 'firebase/auth'
 import PetCard from '../components/PetCard.vue'
 import PetForm from '../components/PetForm.vue'
 
@@ -84,45 +104,46 @@ const activeTab = ref('login')
 const email = ref('')
 const password = ref('')
 const name = ref('')
-const error = ref('')
+const mensajeExito = ref('')
 const showForm = ref(false)
 const petToEdit = ref(null)
 
-onMounted(async () => {
-  const checkAuth = setInterval(async () => {
-    if (authStore.user) {
+// Carga las mascotas en cuanto Firebase confirma que hay usuario
+watch(
+  () => authStore.user,
+  async (usuario) => {
+    if (usuario) {
       await petsStore.loadPets()
-      clearInterval(checkAuth)
+    } else {
+      petsStore.pets = []
     }
-  }, 100)
-  
-  setTimeout(() => {
-    clearInterval(checkAuth)
-  }, 5000)
-})
+  },
+  { immediate: true },
+)
+
+const cambiarTab = (tab) => {
+  activeTab.value = tab
+  authStore.clearError()
+  mensajeExito.value = ''
+}
 
 const handleLogin = async () => {
-  error.value = ''
+  mensajeExito.value = ''
   const success = await authStore.login(email.value, password.value)
-  if (!success) {
-    error.value = 'Email o contraseña incorrectos'
-  } else {
+  if (success) {
     email.value = ''
     password.value = ''
-    await petsStore.loadPets()
   }
 }
 
 const handleRegister = async () => {
-  error.value = ''
+  mensajeExito.value = ''
   const success = await authStore.register(email.value, password.value, name.value)
-  if (!success) {
-    error.value = 'Error al registrarse'
-  } else {
+  if (success) {
     email.value = ''
     password.value = ''
     name.value = ''
-    activeTab.value = 'login'
+    mensajeExito.value = 'Cuenta creada correctamente. ¡Bienvenida!'
   }
 }
 
@@ -143,7 +164,7 @@ const onCancel = () => {
 }
 
 const onEditRequest = (id) => {
-  petToEdit.value = petsStore.pets.find(p => p.id === id)
+  petToEdit.value = petsStore.pets.find((p) => p.id === id)
   showForm.value = true
 }
 </script>
@@ -172,7 +193,7 @@ const onEditRequest = (id) => {
 
 .auth-card h1 {
   text-align: center;
-  color: #7B2FBE;
+  color: #7b2fbe;
   margin-bottom: 0.5rem;
   font-size: 2rem;
 }
@@ -201,9 +222,30 @@ const onEditRequest = (id) => {
 }
 
 .tabs button.active {
-  background: #7B2FBE;
+  background: #7b2fbe;
   color: white;
-  border-color: #7B2FBE;
+  border-color: #7b2fbe;
+}
+
+.alert {
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  text-align: left;
+  line-height: 1.4;
+}
+
+.alert-error {
+  background: #fee2e2;
+  border-left: 4px solid #dc2626;
+  color: #991b1b;
+}
+
+.alert-success {
+  background: #dcfce7;
+  border-left: 4px solid #16a34a;
+  color: #166534;
 }
 
 .form {
@@ -221,13 +263,13 @@ const onEditRequest = (id) => {
 
 .form input:focus {
   outline: none;
-  border-color: #7B2FBE;
+  border-color: #7b2fbe;
   box-shadow: 0 0 0 3px rgba(123, 47, 190, 0.1);
 }
 
 .form button {
   padding: 0.75rem;
-  background: linear-gradient(135deg, #7B2FBE, #5B1E8C);
+  background: linear-gradient(135deg, #7b2fbe, #5b1e8c);
   color: white;
   border: none;
   border-radius: 8px;
@@ -245,12 +287,6 @@ const onEditRequest = (id) => {
   cursor: not-allowed;
 }
 
-.error {
-  color: #dc2626;
-  text-align: center;
-  margin-top: 1rem;
-}
-
 .app-section {
   max-width: 1100px;
   margin: 0 auto;
@@ -264,7 +300,7 @@ const onEditRequest = (id) => {
 }
 
 .header h1 {
-  color: #7B2FBE;
+  color: #7b2fbe;
   font-size: 2rem;
 }
 
@@ -285,7 +321,7 @@ const onEditRequest = (id) => {
 
 .btn-add {
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #7B2FBE, #5B1E8C);
+  background: linear-gradient(135deg, #7b2fbe, #5b1e8c);
   color: white;
   border: none;
   border-radius: 8px;
