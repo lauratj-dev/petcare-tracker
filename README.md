@@ -3,7 +3,7 @@
 Una aplicación web full-stack para gestionar y dar seguimiento a tus mascotas: registrar datos básicos, visitas al veterinario, vacunas y evolución de peso.
 
 ## 🚀 Demo en vivo
-[Ver la app aquí](https://petcare-tracker.vercel.app)
+[Ver la app aquí](petcare-tracker-one.vercel.app)
 
 ---
 
