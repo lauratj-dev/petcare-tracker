@@ -1,15 +1,14 @@
 <template>
   <div class="about-page">
-
     <div class="about-hero">
-      <div class="hero-icon">🐾</div>
+      <div class="hero-icon" aria-hidden="true">🐾</div>
       <h1 class="hero-title">PetCare Tracker</h1>
       <p class="hero-sub">Tu mascota, su salud, <strong>bajo control</strong></p>
     </div>
 
     <div class="features-grid">
       <div class="feature-card" v-for="f in features" :key="f.title">
-        <div class="feature-icon">{{ f.icon }}</div>
+        <div class="feature-icon" aria-hidden="true">{{ f.icon }}</div>
         <h3 class="feature-title">{{ f.title }}</h3>
         <p class="feature-desc">{{ f.desc }}</p>
       </div>
@@ -23,21 +22,59 @@
     </div>
 
     <p class="footer-tagline">Porque su bienestar merece lo mejor 🤍</p>
-
   </div>
 </template>
 
 <script setup>
 const features = [
-  { icon: '🐕', title: 'Gestiona tus mascotas', desc: 'Registra todos tus compañeros en un solo lugar con sus datos esenciales.' },
-  { icon: '📋', title: 'Visitas al veterinario', desc: 'Lleva un historial completo de cada visita con fecha y motivo.' },
-  { icon: '💉', title: 'Vacunas al día', desc: 'Controla cuándo se aplicó cada vacuna y cuándo toca la siguiente dosis.' },
-  { icon: '⚖️', title: 'Control de peso', desc: 'Registra la evolución del peso a lo largo del tiempo.' },
-  { icon: '🔍', title: 'Búsqueda y filtros', desc: 'Encuentra rápidamente cualquier mascota por nombre o especie.' },
-  { icon: '💾', title: 'Guardado automático', desc: 'Todos los datos se guardan en local, sin necesidad de cuenta.' },
+  {
+    icon: '🐕',
+    title: 'Gestiona tus mascotas',
+    desc: 'Registra todas tus mascotas en un solo lugar con sus datos esenciales y fotografía.',
+  },
+  {
+    icon: '📋',
+    title: 'Visitas al veterinario',
+    desc: 'Mantén un historial de las visitas realizadas, incluyendo fecha, motivo y veterinario.',
+  },
+  {
+    icon: '💉',
+    title: 'Vacunas al día',
+    desc: 'Registra las vacunas administradas y controla las próximas dosis.',
+  },
+  {
+    icon: '⚖️',
+    title: 'Control de peso',
+    desc: 'Consulta la evolución del peso de cada mascota mediante una gráfica.',
+  },
+  {
+    icon: '🔍',
+    title: 'Búsqueda y filtros',
+    desc: 'Encuentra rápidamente cualquier mascota por su nombre o especie.',
+  },
+  {
+    icon: '☁️',
+    title: 'Datos en la nube',
+    desc: 'La información se guarda en Firestore y queda asociada a la cuenta de cada usuario.',
+  },
 ]
 
-const stack = ['Vue 3', 'Pinia', 'Vue Router', 'Vite', 'Vitest', 'Git', 'GitHub Actions', 'Docker']
+const stack = [
+  'Vue 3',
+  'TypeScript',
+  'Pinia',
+  'Vue Router',
+  'Firebase Auth',
+  'Firestore',
+  'Sass',
+  'Chart.js',
+  'Vitest',
+  'Vite',
+  'Vercel',
+  'Sentry',
+  'PWA',
+  'Docker',
+]
 </script>
 
 <style scoped>

@@ -1,239 +1,295 @@
-import { defineStore } from 'pinia'
-import { ref } from 'vue'
-import { db } from '../firebase.js'
-import {
-  collection,
-  addDoc,
-  query,
-  where,
-  getDocs,
-  deleteDoc,
-  doc,
-  updateDoc,
-  arrayUnion,
-} from 'firebase/firestore'
-import { useAuthStore } from './auth.ts'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { createPinia, setActivePinia } from 'pinia'
+import { usePetsFirestoreStore } from '../pets-firestore'
 
-interface Vaccine {
-  name: string
-  date: string
+const authMock = vi.hoisted(() => ({
+  user: null as { uid: string } | null,
+}))
+
+const firestoreMocks = vi.hoisted(() => ({
+  collection: vi.fn(),
+  addDoc: vi.fn(),
+  query: vi.fn(),
+  where: vi.fn(),
+  getDocs: vi.fn(),
+  deleteDoc: vi.fn(),
+  doc: vi.fn(),
+  updateDoc: vi.fn(),
+  arrayUnion: vi.fn(),
+}))
+
+vi.mock('../../firebase.js', () => ({
+  db: {},
+}))
+
+vi.mock('../auth', () => ({
+  useAuthStore: () => authMock,
+}))
+
+vi.mock('firebase/firestore', () => ({
+  collection: firestoreMocks.collection,
+  addDoc: firestoreMocks.addDoc,
+  query: firestoreMocks.query,
+  where: firestoreMocks.where,
+  getDocs: firestoreMocks.getDocs,
+  deleteDoc: firestoreMocks.deleteDoc,
+  doc: firestoreMocks.doc,
+  updateDoc: firestoreMocks.updateDoc,
+  arrayUnion: firestoreMocks.arrayUnion,
+}))
+
+const petData = {
+  name: 'Luna',
+  species: 'Perro',
+  age: 3,
+  photo: 'luna.jpg',
 }
 
-interface Visit {
-  date: string
-  reason: string
-  vet?: string
-}
+describe('usePetsFirestoreStore', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
 
-interface Weight {
-  weightValue: number
-  weightDate: string
-}
+    authMock.user = null
 
-interface Pet {
-  id: string
-  name: string
-  species: string
-  age: number
-  photo?: string
-  userId?: string
-  vaccines?: Vaccine[]
-  visits?: Visit[]
-  weights?: Weight[]
-}
+    vi.clearAllMocks()
 
-export const usePetsFirestoreStore = defineStore('petsFirestore', () => {
-  const pets = ref<Pet[]>([])
-  const loading = ref<boolean>(false)
+    firestoreMocks.collection.mockImplementation((_database: unknown, collectionName: string) => ({
+      collectionName,
+    }))
 
-  const addPet = async (petData: Omit<Pet, 'id'>): Promise<boolean> => {
-    const authStore = useAuthStore()
-    if (!authStore.user) return false
+    firestoreMocks.where.mockImplementation((field: string, operator: string, value: string) => ({
+      field,
+      operator,
+      value,
+    }))
 
-    loading.value = true
-    try {
-      const docRef = await addDoc(collection(db, 'pets'), {
+    firestoreMocks.query.mockImplementation((collectionReference: unknown, condition: unknown) => ({
+      collectionReference,
+      condition,
+    }))
+
+    firestoreMocks.doc.mockImplementation(
+      (_database: unknown, collectionName: string, id: string) => ({
+        collectionName,
+        id,
+      }),
+    )
+
+    firestoreMocks.arrayUnion.mockImplementation((value: unknown) => ({
+      operation: 'arrayUnion',
+      value,
+    }))
+  })
+
+  it('no añade una mascota si el usuario no está autenticado', async () => {
+    const store = usePetsFirestoreStore()
+
+    const result = await store.addPet(petData)
+
+    expect(result).toBe(false)
+    expect(firestoreMocks.addDoc).not.toHaveBeenCalled()
+    expect(store.pets).toHaveLength(0)
+  })
+
+  it('añade una mascota para el usuario autenticado', async () => {
+    authMock.user = { uid: 'user-1' }
+    firestoreMocks.addDoc.mockResolvedValue({ id: 'pet-1' })
+
+    const store = usePetsFirestoreStore()
+    const result = await store.addPet(petData)
+
+    expect(result).toBe(true)
+
+    expect(firestoreMocks.addDoc).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
         ...petData,
-        userId: authStore.user.uid,
-        createdAt: new Date(),
-      })
-      pets.value.push({ id: docRef.id, ...petData })
-      return true
-    } catch (error: any) {
-      console.error('Error añadiendo mascota:', error)
-      return false
-    } finally {
-      loading.value = false
+        userId: 'user-1',
+        createdAt: expect.any(Date),
+      }),
+    )
+
+    expect(store.pets).toEqual([
+      {
+        id: 'pet-1',
+        ...petData,
+      },
+    ])
+
+    expect(store.loading).toBe(false)
+  })
+
+  it('carga únicamente las mascotas del usuario autenticado', async () => {
+    authMock.user = { uid: 'user-1' }
+
+    firestoreMocks.getDocs.mockResolvedValue({
+      docs: [
+        {
+          id: 'pet-1',
+          data: () => ({
+            ...petData,
+            userId: 'user-1',
+          }),
+        },
+      ],
+    })
+
+    const store = usePetsFirestoreStore()
+
+    await store.loadPets()
+
+    expect(firestoreMocks.where).toHaveBeenCalledWith('userId', '==', 'user-1')
+
+    expect(store.pets).toEqual([
+      {
+        id: 'pet-1',
+        ...petData,
+        userId: 'user-1',
+      },
+    ])
+
+    expect(store.loading).toBe(false)
+  })
+
+  it('no carga mascotas si no existe un usuario autenticado', async () => {
+    const store = usePetsFirestoreStore()
+
+    await store.loadPets()
+
+    expect(firestoreMocks.getDocs).not.toHaveBeenCalled()
+    expect(store.pets).toHaveLength(0)
+  })
+
+  it('elimina una mascota de Firestore y del estado local', async () => {
+    firestoreMocks.deleteDoc.mockResolvedValue(undefined)
+
+    const store = usePetsFirestoreStore()
+
+    store.pets.push({
+      id: 'pet-1',
+      ...petData,
+    })
+
+    const result = await store.deletePet('pet-1')
+
+    expect(result).toBe(true)
+    expect(firestoreMocks.deleteDoc).toHaveBeenCalledWith({
+      collectionName: 'pets',
+      id: 'pet-1',
+    })
+    expect(store.pets).toHaveLength(0)
+  })
+
+  it('actualiza una mascota en Firestore y en el estado local', async () => {
+    firestoreMocks.updateDoc.mockResolvedValue(undefined)
+
+    const store = usePetsFirestoreStore()
+
+    store.pets.push({
+      id: 'pet-1',
+      ...petData,
+    })
+
+    const result = await store.updatePet('pet-1', {
+      age: 4,
+    })
+
+    expect(result).toBe(true)
+
+    expect(firestoreMocks.updateDoc).toHaveBeenCalledWith(
+      {
+        collectionName: 'pets',
+        id: 'pet-1',
+      },
+      {
+        age: 4,
+      },
+    )
+
+    expect(store.pets[0]?.age).toBe(4)
+  })
+
+  it('añade una vacuna a una mascota', async () => {
+    firestoreMocks.updateDoc.mockResolvedValue(undefined)
+
+    const store = usePetsFirestoreStore()
+
+    store.pets.push({
+      id: 'pet-1',
+      ...petData,
+      vaccines: [],
+    })
+
+    const vaccine = {
+      name: 'Rabia',
+      date: '2026-08-06',
     }
-  }
 
-  const loadPets = async (): Promise<void> => {
-    const authStore = useAuthStore()
-    if (!authStore.user) return
+    const result = await store.addVaccine('pet-1', vaccine)
 
-    loading.value = true
-    try {
-      const q = query(collection(db, 'pets'), where('userId', '==', authStore.user.uid))
-      const snapshot = await getDocs(q)
-      pets.value = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Pet)
-    } catch (error: any) {
-      console.error('Error cargando mascotas:', error)
-    } finally {
-      loading.value = false
+    expect(result).toBe(true)
+    expect(store.pets[0]?.vaccines).toEqual([vaccine])
+  })
+
+  it('añade una visita veterinaria a una mascota', async () => {
+    firestoreMocks.updateDoc.mockResolvedValue(undefined)
+
+    const store = usePetsFirestoreStore()
+
+    store.pets.push({
+      id: 'pet-1',
+      ...petData,
+      visits: [],
+    })
+
+    const visit = {
+      date: '2026-08-06',
+      reason: 'Revisión anual',
+      vet: 'Clínica PetCare',
     }
-  }
 
-  const deletePet = async (petId: string): Promise<boolean> => {
-    loading.value = true
-    try {
-      await deleteDoc(doc(db, 'pets', petId))
-      pets.value = pets.value.filter((p) => p.id !== petId)
-      return true
-    } catch (error: any) {
-      console.error('Error eliminando mascota:', error)
-      return false
-    } finally {
-      loading.value = false
+    const result = await store.addVisit('pet-1', visit)
+
+    expect(result).toBe(true)
+    expect(store.pets[0]?.visits).toEqual([visit])
+  })
+
+  it('añade un registro de peso a una mascota', async () => {
+    firestoreMocks.updateDoc.mockResolvedValue(undefined)
+
+    const store = usePetsFirestoreStore()
+
+    store.pets.push({
+      id: 'pet-1',
+      ...petData,
+      weights: [],
+    })
+
+    const weight = {
+      weightValue: 12.5,
+      weightDate: '2026-08-06',
     }
-  }
 
-  const updatePet = async (petId: string, updates: Partial<Pet>): Promise<boolean> => {
-    loading.value = true
-    try {
-      await updateDoc(doc(db, 'pets', petId), updates)
-      const index = pets.value.findIndex((p) => p.id === petId)
-      if (index !== -1) {
-        pets.value[index] = { ...pets.value[index], ...updates }
-      }
-      return true
-    } catch (error: any) {
-      console.error('Error actualizando mascota:', error)
-      return false
-    } finally {
-      loading.value = false
-    }
-  }
+    const result = await store.addWeight('pet-1', weight)
 
-  const addVaccine = async (petId: string, vaccine: Vaccine): Promise<boolean> => {
-    loading.value = true
-    try {
-      await updateDoc(doc(db, 'pets', petId), { vaccines: arrayUnion(vaccine) })
-      const pet = pets.value.find((p) => p.id === petId)
-      if (pet) {
-        pet.vaccines = pet.vaccines || []
-        pet.vaccines.push(vaccine)
-      }
-      return true
-    } catch (error: any) {
-      console.error('Error añadiendo vacuna:', error)
-      return false
-    } finally {
-      loading.value = false
-    }
-  }
+    expect(result).toBe(true)
+    expect(store.pets[0]?.weights).toEqual([weight])
+  })
 
-  const addVisit = async (petId: string, visit: Visit): Promise<boolean> => {
-    loading.value = true
-    try {
-      await updateDoc(doc(db, 'pets', petId), { visits: arrayUnion(visit) })
-      const pet = pets.value.find((p) => p.id === petId)
-      if (pet) {
-        pet.visits = pet.visits || []
-        pet.visits.push(visit)
-      }
-      return true
-    } catch (error: any) {
-      console.error('Error añadiendo visita:', error)
-      return false
-    } finally {
-      loading.value = false
-    }
-  }
+  it('devuelve false y restablece loading si Firestore falla', async () => {
+    authMock.user = { uid: 'user-1' }
 
-  const addWeight = async (petId: string, weight: Weight): Promise<boolean> => {
-    loading.value = true
-    try {
-      await updateDoc(doc(db, 'pets', petId), { weights: arrayUnion(weight) })
-      const pet = pets.value.find((p) => p.id === petId)
-      if (pet) {
-        pet.weights = pet.weights || []
-        pet.weights.push(weight)
-      }
-      return true
-    } catch (error: any) {
-      console.error('Error añadiendo peso:', error)
-      return false
-    } finally {
-      loading.value = false
-    }
-  }
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
 
-  const removeVaccine = async (petId: string, vaccineIndex: number): Promise<boolean> => {
-    loading.value = true
-    try {
-      const pet = pets.value.find((p) => p.id === petId)
-      if (pet && pet.vaccines) {
-        const newVaccines = pet.vaccines.filter((_, idx) => idx !== vaccineIndex)
-        await updateDoc(doc(db, 'pets', petId), { vaccines: newVaccines })
-        pet.vaccines = newVaccines
-      }
-      return true
-    } catch (error: any) {
-      console.error('Error eliminando vacuna:', error)
-      return false
-    } finally {
-      loading.value = false
-    }
-  }
+    firestoreMocks.addDoc.mockRejectedValue(new Error('Error simulado de Firestore'))
 
-  const removeVisit = async (petId: string, visitIndex: number): Promise<boolean> => {
-    loading.value = true
-    try {
-      const pet = pets.value.find((p) => p.id === petId)
-      if (pet && pet.visits) {
-        const newVisits = pet.visits.filter((_, idx) => idx !== visitIndex)
-        await updateDoc(doc(db, 'pets', petId), { visits: newVisits })
-        pet.visits = newVisits
-      }
-      return true
-    } catch (error: any) {
-      console.error('Error eliminando visita:', error)
-      return false
-    } finally {
-      loading.value = false
-    }
-  }
+    const store = usePetsFirestoreStore()
+    const result = await store.addPet(petData)
 
-  const removeWeight = async (petId: string, weightIndex: number): Promise<boolean> => {
-    loading.value = true
-    try {
-      const pet = pets.value.find((p) => p.id === petId)
-      if (pet && pet.weights) {
-        const newWeights = pet.weights.filter((_, idx) => idx !== weightIndex)
-        await updateDoc(doc(db, 'pets', petId), { weights: newWeights })
-        pet.weights = newWeights
-      }
-      return true
-    } catch (error: any) {
-      console.error('Error eliminando peso:', error)
-      return false
-    } finally {
-      loading.value = false
-    }
-  }
+    expect(result).toBe(false)
+    expect(store.loading).toBe(false)
+    expect(consoleErrorSpy).toHaveBeenCalled()
 
-  return {
-    pets,
-    loading,
-    addPet,
-    loadPets,
-    deletePet,
-    updatePet,
-    addVaccine,
-    addVisit,
-    removeVaccine,
-    removeVisit,
-    removeWeight,
-    addWeight,
-  }
+    consoleErrorSpy.mockRestore()
+  })
 })
