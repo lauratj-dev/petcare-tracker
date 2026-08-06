@@ -12,7 +12,7 @@ import {
   updateDoc,
   arrayUnion,
 } from 'firebase/firestore'
-import { useAuthStore } from './auth.ts'
+import { useAuthStore } from './auth'
 
 interface Vaccine {
   name: string
